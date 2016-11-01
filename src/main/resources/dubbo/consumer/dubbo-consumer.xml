@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans	
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://code.alibabatech.com/schema/dubbo  
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+			">
+	<bean id="dubboConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations" value="classpath:dubbo/dubbo.properties" />
+	</bean>
+
+	<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+	<dubbo:application name="${default.dubbo.appname}" />
+	<dubbo:registry protocol="${default.dubbo.registry.protocol}"
+		address="${dubbo.registry.address}" />
+	<dubbo:protocol name="${default.dubbo.protocol}" port="${default.dubbo.protocol.port}" />
+	
+	<dubbo:monitor protocol="registry" />
+	
+	<dubbo:consumer timeout="30000" />
+
+	<!-- 终端与支付机构的关系服务 -->
+	<dubbo:reference id="terminalOrgRelQuerySV"
+		interface="com.ai.runner.center.pay.api.terminalorgrelquery.interfaces.ITerminalOrgRelQuerySV" />
+		
+	<!-- 合作方信息查询服务 -->
+	<dubbo:reference id="tenantInfoQuerySV"
+		interface="com.ai.runner.center.pay.api.tenantinfoquery.interfaces.ITenantInfoQuerySV" />		
+		
+	<!-- 支付平台流水综合服务 -->
+	<dubbo:reference id="payCenterSV"
+		interface="com.ai.runner.center.pay.api.paycenter.interfaces.IPayCenterSV" />
+		
+	<!-- 支付中心交易记录查询服务 -->
+	<dubbo:reference id="tradeQuerySV"
+		interface="com.ai.runner.center.pay.api.tradequery.interfaces.ITradeQuerySV" />	
+	<!-- 支付中心租户配置维护服务 -->
+	<dubbo:reference id="ITenantConfigSV"
+		interface="com.ai.runner.center.pay.api.tenantconfig.interfaces.ITenantConfigSV" />	
+	<!-- 租户查询服务 -->	
+	<dubbo:reference id="IGnTenantQuerySV"
+		interface="com.ai.runner.center.common.api.tenant.interfaces.IGnTenantQuerySV" />						
+</beans>   

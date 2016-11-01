@@ -1,0 +1,123 @@
+apply plugin: 'war'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
+
+/*编译编码UTF-8*/
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+
+sourceSets {
+	main {
+            java {
+                srcDirs = [
+                    'src/main/java'
+                ]
+            }
+            resources { srcDirs = ['src/main/resources']}
+        }
+    test {
+            java {
+                srcDirs = [
+                    'src/test/java'
+                ]
+            }
+            resources { srcDirs = ['src/test/resources']}
+        }
+
+}
+
+repositories {
+	//mavenLocal()
+	//mavenCentral()
+	//maven{ url "http://223.202.119.155:18081/nexus/content/groups/public/"}
+	maven { url "http://10.1.228.199:18081/nexus/content/groups/public/" }
+}
+ext {
+    profile=project.hasProperty('profile')? (project['profile']==""?"aic-dev":project['profile']) : "aic-dev"
+	versionSuffix="1.0-SNAPSHOT"
+}
+configurations.all {
+	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+	
+
+dependencies {
+    //基础包
+    compile 'org.springframework:spring-core:4.1.7.RELEASE'
+    compile 'org.springframework:spring-beans:4.1.7.RELEASE'
+    compile 'org.springframework:spring-context:4.1.7.RELEASE'
+    compile 'org.springframework:spring-context-support:4.1.7.RELEASE'
+    compile 'org.springframework:spring-web:4.1.7.RELEASE'
+    compile 'org.springframework:spring-webmvc:4.1.7.RELEASE'
+    
+    compile ('com.alibaba:dubbox:2.8.3'){
+        exclude group: 'org.springframework', module: 'spring'
+    }
+    
+    compile 'org.apache.cxf:cxf-api:2.7.10'
+    compile 'org.apache.httpcomponents:httpclient:4.3.1'
+    compile 'org.json:json:20140107'
+    compile "jstl:jstl:1.2"
+    compile 'commons-digester:commons-digester:2.1'
+	compile "javax.servlet:javax.servlet-api:3.1.0"
+	compile "javax.servlet.jsp:javax.servlet.jsp-api:2.3.1"
+        
+    compile "dom4j:dom4j:1.6.1"
+    compile "jdom:jdom:1.0"
+    compile "org.apache.xmlbeans:xmlbeans:2.6.0"
+    compile "com.thoughtworks.xstream:xstream:1.4.1"
+    
+    //支付宝
+    compile 'commons-codec:commons-codec:1.6'
+    compile 'commons-httpclient:commons-httpclient:3.1'
+    compile 'commons-logging:commons-logging:1.1.3'
+    compile 'jaxen:jaxen:1.1.6'
+    
+    //中国银联
+    //compile 'fakepath:upacp_sdk:1.0.1'
+    compile 'org.bouncycastle:bcprov-jdk16:1.46'
+    
+    //兴业银行
+    compile 'com.cib.cap4i.appsvr:appsvr.base:0.0.1'
+    compile 'com.cib.cap4i.appsvr:appsvr.client:0.0.1'
+    
+    //支付中心
+    compile "com.ai.runner.center.pay:terminalorgrelquery:1.0-SNAPSHOT"
+    compile "com.ai.runner.center.pay:paycenter:1.0-SNAPSHOT"
+    compile "com.ai.runner.center.pay:tradequery:1.0-SNAPSHOT"
+    compile "com.ai.runner.center.pay:tenantinfoquery:1.0-SNAPSHOT"
+    compile "com.ai.runner.center.pay:tenantconfig:1.0-SNAPSHOT"
+    compile "com.ai.runner.center.commons:tenant:1.0-SNAPSHOT"
+    
+	
+	
+	compile 'com.ai.opt.sdk:opt-sdk:2.0-SNAPSHOT'
+    //集成单点登录
+	compile 'com.ai.opt.xss.filter:opt-xss-firewall:1.0-SNAPSHOT'
+	compile 'com.ai.opt.uni.session:opt-uni-session:2.0-SNAPSHOT'
+	compile 'com.ai.opt.sso.client:opt-sso-client:1.0.2-SNAPSHOT'
+    //junit
+    compile "junit:junit:4.12"
+    compile fileTree(dir:'lib',include:'**/*.jar')
+}
+
+processResources {
+    from('profile/'+profile) {
+        include '**/*'
+    }
+}
+
+war{
+    baseName "opt-pay"
+}
+
+eclipse {
+    wtp {
+        facet {
+            facet name: 'java', version: '1.7'
+            facet name: 'jst.web', version: '3.0'
+            facet name: 'wst.jsdt.web', version: '1.0'
+        }
+    }
+}

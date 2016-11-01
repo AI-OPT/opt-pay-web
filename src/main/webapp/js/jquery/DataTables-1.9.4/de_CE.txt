@@ -1,0 +1,20 @@
+{
+	"sProcessing": "请稍候...",
+	"sLengthMenu": "_MENU_ 每页显示条数",
+	"sZeroRecords": "没有查询到记录.",
+	"sInfo": "_START_ 到 _END_ 条 共 _TOTAL_ 条记录",
+	"sInfoEmpty": "0 到 0 条   共0 条记录",
+	"sInfoFiltered": "(过滤   _MAX_ 条 记录)",
+	"sInfoPostFix": "",
+	"sSearch": "搜索",
+	"sUrl": "",
+	"oPaginate": {
+		"sFirst":    "第一页",
+		"sPrevious": "前一页",
+		"sNext":     "后一页",
+		"sLast":     "最后一页"
+	}
+}
+
+
+
