@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.elasticsearch.common.cli.CheckFileCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +46,90 @@ public class PayController extends TradeBaseController {
     @Autowired
     private ITerminalOrgRelQuerySV terminalOrgRelQuerySV;
     
-    @RequestMapping(value = "/choosePlatform", method = RequestMethod.POST)
+    @RequestMapping(value = "/gotoPayByOrg", method = RequestMethod.POST)
+    public ModelAndView gotoPayNew(HttpServletRequest request, HttpServletResponse response,
+            PaymentReqParam paymentReqParam) throws Exception {
+    	/* 参数校验 */
+    	this.checkGotoPayByOrgParam(paymentReqParam);
+    	/* 2.沉淀支付交易记录   */
+        String tenantId = paymentReqParam.getTenantId();
+        String orderId = paymentReqParam.getOrderId();
+        String orderAmount = paymentReqParam.getOrderAmount();
+        String subject = paymentReqParam.getSubject();
+        String requestSource = paymentReqParam.getRequestSource();
+        String returnUrl = paymentReqParam.getReturnUrl();
+        String partnerId = "";//this.getPartnerId(tenantId);
+        String serverType =  ConfigUtil.getProperty(PayConstants.SERVER_TYPE);
+        if("ISTEST".equals(serverType)){
+            orderAmount = "0.01";
+        }
+        this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
+                paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
+                partnerId);
+    	String payOrgCode = paymentReqParam.getPayOrgCode();
+    	TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
+        if(tradeRecord == null) {
+            LOG.error("发起支付时查询不到此订单支付请求数据： 租户标识： " + tenantId + " ，订单号： " + orderId);
+            throw new SystemException("发起支付时查询订单信息异常!");
+        }
+        
+        /* 3.校验此订单是否可以支付 */
+        this.checkOrderCouldPay(tradeRecord);
+        /* 4.跳转到对应的支付方式支付前准备工作 */
+        return this.prepareToPay(tenantId, orderId, payOrgCode, tradeRecord.getRequestSource());
+    }
+    
+    private void checkGotoPayByOrgParam(PaymentReqParam paymentReqParam) {
+        final String errMsg = "支付传入参数有误：";
+        String tenantId = paymentReqParam.getTenantId();
+        if (StringUtil.isBlank(tenantId)) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "租户ID不能为空");
+        }
+        
+        if (StringUtil.isBlank(paymentReqParam.getOrderId())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "订单号不能为空");
+        }
+        
+        if (StringUtil.isBlank(paymentReqParam.getRequestSource())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "终端来源不能为空");
+        }
+        
+        if(StringUtil.isBlank(paymentReqParam.getOrderAmount())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "订单金额不能为空");
+        }
+        
+        if(!paymentReqParam.getOrderAmount().matches("^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){1,2})?$")) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_WRONG, errMsg + "订单金额格式有误");
+        }
+        
+        if(StringUtil.isBlank(paymentReqParam.getReturnUrl())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "页面跳转同步通知地址不能为空");
+        }
+        
+        if(StringUtil.isBlank(paymentReqParam.getNotifyUrl())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "服务器异步通知页面路径不能为空");
+        }
+        
+        if(StringUtil.isBlank(paymentReqParam.getInfoMd5())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "加密信息不能为空");
+        }
+        
+        //orderId;orderAmount;notifyUrl;tenantId
+        //(订单号，订单金额，服务后台通知路径，租户ID四个关键字段，以英文输入分号分隔;注意最后没有分号)
+        String infoStr = paymentReqParam.getOrderId() + VerifyUtil.SEPARATOR
+                + paymentReqParam.getOrderAmount() + VerifyUtil.SEPARATOR
+                + paymentReqParam.getNotifyUrl() + VerifyUtil.SEPARATOR
+                + tenantId;
+        String key = ConfigUtil.getTenantCommonProperty(tenantId, PayConstants.REQUEST_KEY);
+        if(!"0".equals(paymentReqParam.getCheckFlag())){
+            if(!VerifyUtil.checkParam(infoStr, paymentReqParam.getInfoMd5(), key)) {
+                LOG.error("验签失败：传入的参数已被篡改！" + infoStr);
+                throw new BusinessException(ExceptCodeConstants.ILLEGAL_PARAM, "传入的支付请求参数非法,参数有误或已被篡改！");
+            }
+        }
+    }
+
+	@RequestMapping(value = "/choosePlatform", method = RequestMethod.POST)
     public ModelAndView choosePlatform(HttpServletRequest request, HttpServletResponse response,
             PaymentReqParam paymentReqParam) throws Exception {
         LOG.info("跳转到支付平台选择界面，商户订单号： " + paymentReqParam.getOrderId() + " ，租户标识： " + paymentReqParam.getTenantId());
@@ -68,10 +150,6 @@ public class PayController extends TradeBaseController {
         if("ISTEST".equals(serverType)){
             orderAmount = "0.01";
         }
-//        if(StringUtil.isBlank(partnerId)) {
-//            LOG.error("未识别的合作方身份！租户ID： " + tenantId);
-//            throw new BusinessException(ExceptCodeConstants.ILLEGAL_PARTNER, "未识别的合作方身份！");
-//        }            
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
                 partnerId);

@@ -88,6 +88,11 @@ public final class PayConstants {
         /* 兴业 */
         public static final String XY = "XY";
 
+		/**
+		 * PayPal
+		 */
+		public static final String PP = "PP";
+
     }
     
     /**

@@ -128,24 +128,26 @@ public abstract class AbstractPayConfigManager {
      * @ApiDocMethod
      * @ApiCode
      */
-    public static AbstractPayConfigManager getInstance(String payOrgCode) {
-        AbstractPayConfigManager manager = null;
-        if(PayConstants.PayOrgCode.ZFB.equals(payOrgCode)) {
-            manager = new AliPayConfigManager();
-        } else if(PayConstants.PayOrgCode.WEIXIN.equals(payOrgCode)) {
-            manager = new WeixinConfigManager();
-        } else if(PayConstants.PayOrgCode.YL.equals(payOrgCode)) {
-            manager = new YlPayConfigManager();
-        } else if(PayConstants.PayOrgCode.XY.equals(payOrgCode)) {
-            manager = new XyPayConfigManager();
-        } else {
-            final String message = "获取不到该支付类型的： " + payOrgCode + "配置管理类实例，请查看配置或暂不支持此支付方式";
-            LOG.error(message);
-            throw new SystemException(message);  
-        }
-                
-        return manager;
-    }
+	public static AbstractPayConfigManager getInstance(String payOrgCode) {
+		AbstractPayConfigManager manager = null;
+		if (PayConstants.PayOrgCode.ZFB.equals(payOrgCode)) {
+			manager = new AliPayConfigManager();
+		} else if (PayConstants.PayOrgCode.WEIXIN.equals(payOrgCode)) {
+			manager = new WeixinConfigManager();
+		} else if (PayConstants.PayOrgCode.YL.equals(payOrgCode)) {
+			manager = new YlPayConfigManager();
+		} else if (PayConstants.PayOrgCode.XY.equals(payOrgCode)) {
+			manager = new XyPayConfigManager();
+		} else if (PayConstants.PayOrgCode.PP.equals(payOrgCode)) {
+			manager = new PpPayConfigManager();
+		} else {
+			final String message = "获取不到该支付类型的： " + payOrgCode + "配置管理类实例，请查看配置或暂不支持此支付方式";
+			LOG.error(message);
+			throw new SystemException(message);
+		}
+
+		return manager;
+	}
     
     /**
      * 获取支付响应地址

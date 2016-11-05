@@ -37,36 +37,37 @@ public final class AlipayCore {
         
     }
     
-    /**
-     * 除去数组中的空值和签名参数
-     * 
-     * @param sArray
-     *            签名参数组
-     * @return 去掉空值与签名参数后的新签名参数组
-     */
-    public static Map<String, String> paraFilter(Map<String, String> sArray) {
+	/**
+	 * 除去数组中的空值和签名参数
+	 * 
+	 * @param sArray
+	 *            签名参数组
+	 * @return 去掉空值与签名参数后的新签名参数组
+	 */
+	public static Map<String, String> paraFilter(Map<String, String> sArray) {
 
-        Map<String, String> result = new HashMap<String, String>();
+		Map<String, String> result = new HashMap<String, String>();
 
-        if (sArray == null || sArray.size() <= 0) {
-            return result;
-        }
+		if (sArray == null || sArray.size() <= 0) {
+			return result;
+		}
 
-        Set<Entry<String, String>> set = sArray.entrySet();
-        Iterator<Entry<String, String>> iterator = set.iterator();
-        while(iterator.hasNext()) {
-            Entry<String, String> entry = iterator.next();
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (value == null || "".equals(value) || "sign".equalsIgnoreCase(key)
-                    || "sign_type".equalsIgnoreCase(key)) {
-                continue;
-            }
-            result.put(key, value);
-        }
-        
-        return result;
-    }
+		Set<Entry<String, String>> set = sArray.entrySet();
+		Iterator<Entry<String, String>> iterator = set.iterator();
+		while (iterator.hasNext()) {
+			Entry<String, String> entry = iterator.next();
+			String key = entry.getKey();
+			String value = entry.getValue();
+			if (value == null || "".equals(value)
+					|| "sign".equalsIgnoreCase(key)
+					|| "sign_type".equalsIgnoreCase(key)) {
+				continue;
+			}
+			result.put(key, value);
+		}
+
+		return result;
+	}
 
     /**
      * 把数组所有元素排序，并按照“参数=参数值”的模式用“&”字符拼接成字符串
