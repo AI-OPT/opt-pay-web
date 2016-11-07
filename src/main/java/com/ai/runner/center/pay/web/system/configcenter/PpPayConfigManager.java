@@ -42,4 +42,8 @@ public class PpPayConfigManager extends AbstractPayConfigManager {
 		return ConfigUtil.getProperty(PP_ORG_CODE, CHECKOUT_BUTTON_URL);
 	}
 
+	public static String getMerchantAccountId(String tenantId) {
+		return null;
+	}
+
 }
