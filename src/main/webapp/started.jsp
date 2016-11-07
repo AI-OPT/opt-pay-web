@@ -18,7 +18,7 @@
 该环境下，一般配置为外网地址
 <br><br>
 电脑、手机浏览器 <br>
-带支付机构选择页面的支付地址：<%=basePath%>/pay/choosePlatform
+带支付机构选择页面的支付地址：<%=basePath%>/pay/choosePlatform<br><br>
 跳过支付机构选择页面的支付地址：<%=basePath%>/pay/gotoPayByOrg
 </body>
 </html>
