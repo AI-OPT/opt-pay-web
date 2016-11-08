@@ -152,7 +152,6 @@ public class PpPayController extends TradeBaseController {
         for (int i = 0; i < keys.size(); i++) {
             String name = (String) keys.get(i);
             String value = (String) sPara.get(name);
-
             sbHtml.append("<input type=\"hidden\" name=\"" + name + "\" value=\"" + value + "\"/>");
         }
 
@@ -190,7 +189,7 @@ public class PpPayController extends TradeBaseController {
 	
 	@RequestMapping(value = "/webNotify")
     public void ppWebNotify(HttpServletRequest request, HttpServletResponse response) {
-        LOGGER.debug("paypalWEB后台通知...");
+        LOGGER.info("paypalWEB后台通知...");
         showParams(request);
         try {
             request.setCharacterEncoding("utf-8");
@@ -288,7 +287,7 @@ public class PpPayController extends TradeBaseController {
     @RequestMapping(value = "/webReturn")
     public void ppWebReturn(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        LOGGER.debug("paypalWEB前台通知...");
+        LOGGER.info("paypalWEB前台通知...");
         showParams(request);
         try {
             request.setCharacterEncoding("utf-8");
