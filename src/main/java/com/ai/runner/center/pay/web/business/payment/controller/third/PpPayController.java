@@ -156,15 +156,15 @@ public class PpPayController extends TradeBaseController {
         try {
         	// 从 PayPal 出读取 POST 信息同时添加变量„cmd‟ 
         	Enumeration<String> en = request.getParameterNames(); 
-        	String str = "cmd=_notify-validate"; 
+        	String str = "";//"cmd=_notify-validate"; 
         	while (en.hasMoreElements()) { 
         		String paramName = (String) en.nextElement(); 
         		String paramValue = request.getParameter(paramName); 
         		str = str + "&" +paramName + "=" + URLEncoder.encode(paramValue, request.getParameter("charset")); 
         	} 
-        	LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str); 
+        	LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str.substring(1)); 
         	// 将信息 POST 回给 PayPal 进行验证    测试环境先省略这一步 //HTTPWEB是我自己的类 网上有很多HTTP请求的方法 
-        	String result = HttpClientUtil.sendPost("https://ipnpb.sandbox.paypal.com/cgi-bin/webscr", str); 
+        	String result = HttpClientUtil.sendPost("https://ipnpb.sandbox.paypal.com/cgi-bin/webscr", str.substring(1)); 
         	LOGGER.info("paypal支付确认结果result="+result);
         	
             request.setCharacterEncoding("utf-8");
@@ -251,11 +251,6 @@ public class PpPayController extends TradeBaseController {
 	
 	/**
      * paypalWEB即时到账前台通知地址
-     * @param request
-     * @param response
-     * @author fanpw
-     * @ApiDocMethod
-     * @ApiCode
      */
     @RequestMapping(value = "/webReturn")
     public void ppWebReturn(HttpServletRequest request, HttpServletResponse response)
@@ -266,14 +261,14 @@ public class PpPayController extends TradeBaseController {
             request.setCharacterEncoding("utf-8");
             response.setContentType("text/html;charset=utf-8");
             /* 1.获取paypal传递过来的参数 */
-            String out_trade_no = request.getParameter("invoice");
+            String invoice = request.getParameter("invoice");
             String trade_no = request.getParameter("trade_no");
-            LOGGER.info("paypalWEB支付前台通知开始:交易订单号[" + out_trade_no + "]");
+            LOGGER.info("paypalWEB支付前台通知开始:交易订单号[" + invoice + "]");
             
             String payStates = PayConstants.ReturnCode.SUCCESS;
             
-            String tenantId = out_trade_no.split("#")[0]; 
-            String orderId = out_trade_no.split("#")[1]; 
+            String tenantId = invoice.split("#")[0]; 
+            String orderId = invoice.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOGGER.error("paypalWEB前台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
