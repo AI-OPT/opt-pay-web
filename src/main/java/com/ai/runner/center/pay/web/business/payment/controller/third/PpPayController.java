@@ -108,12 +108,12 @@ public class PpPayController extends TradeBaseController {
 //            sParaTemp.put("RETURNURL", return_url);
 //            sParaTemp.put("CANCELURL", notify_url);
 //            sParaTemp.put("CALLBACK", notify_url);
-//            sParaTemp.put("USER", "myto2006-facilitator_api1.163.com");
+            sParaTemp.put("return", returnUrl);
             sParaTemp.put("callback_url", "callback_url");
             sParaTemp.put("cancel_return ", "cancel_return");
             sParaTemp.put("shopping_url ", "shopping_url");
             sParaTemp.put("notify_url ", notify_url);
-            sParaTemp.put("return", returnUrl);
+            sParaTemp.put("return", "www.baidu.com");
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
