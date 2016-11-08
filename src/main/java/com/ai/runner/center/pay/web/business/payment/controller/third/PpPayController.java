@@ -2,6 +2,7 @@ package com.ai.runner.center.pay.web.business.payment.controller.third;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -26,15 +27,12 @@ import com.ai.runner.center.pay.web.business.payment.controller.core.TradeBaseCo
 import com.ai.runner.center.pay.web.business.payment.util.core.PaymentNotifyUtil;
 import com.ai.runner.center.pay.web.business.payment.util.core.VerifyUtil;
 import com.ai.runner.center.pay.web.business.payment.util.third.alipay.AlipayCore;
-import com.ai.runner.center.pay.web.business.payment.util.third.alipay.AlipaySubmit;
 import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager;
 import com.ai.runner.center.pay.web.system.configcenter.AliPayConfigManager;
 import com.ai.runner.center.pay.web.system.configcenter.PpPayConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
-import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
-import com.ai.runner.center.pay.web.system.util.ConfigUtil;
 import com.ai.runner.center.pay.web.system.util.MD5;
 @Controller
 @RequestMapping(value = "/paypal")
@@ -73,18 +71,11 @@ public class PpPayController extends TradeBaseController {
             String basePath = AbstractPayConfigManager.getPayUrl();
             LOGGER.info("项目根路径： " + basePath);
             //组织支付参数            
-            String payment_type = "1"; //支付类型,必填，不能修改
             //服务器异步通知页面路径
-            String notify_url = basePath + WEB_NOTIFY_URL;
             //需http://格式的完整路径，不能加?id=123这类自定义参数     //页面跳转同步通知页面路径
-            String returnUrl = basePath + WEB_RETURN_URL;
+            String notify_url = basePath + WEB_NOTIFY_URL;
             //需http://格式的完整路径，不能加?id=123这类自定义参数，不能写成http://localhost/       
-            String seller_email = ConfigUtil.getProperty(tenantId,
-                    AliPayConfigManager.PAY_ORG_NAME, AliPayConfigManager.WEB_SELLER_EMAIL); // 卖家PayPal帐户
-            String partner = ConfigUtil.getProperty(tenantId, AliPayConfigManager.PAY_ORG_NAME,
-                    AliPayConfigManager.WEB_SELLER_PID);
-            String seller_key = ConfigUtil.getProperty(tenantId, AliPayConfigManager.PAY_ORG_NAME,
-                    AliPayConfigManager.WEB_SELLER_KEY);
+            String returnUrl = basePath + WEB_RETURN_URL;
             String out_trade_no = tradeRecord.getTradeOrderId(); //商户订单号
             LOGGER.info("PayPalWEB支付开始:交易订单号[" + out_trade_no + "]");
             String subject = "网上支付";
@@ -92,38 +83,25 @@ public class PpPayController extends TradeBaseController {
                 subject = tradeRecord.getSubject();
             }
             String total_fee = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额      
-            String body =  null; //订单描述
-            String show_url = null; //商品展示地址
-            //需以http://开头的完整路径，例如：http://www.商户网址.com/myorder.html      //防钓鱼时间戳
-            String anti_phishing_key = "";
-            //若要使用请调用类文件submit中的query_timestamp函数       
-            //客户端的IP地址
-            String exter_invoke_ip = "";
-            //非局域网的外网IP地址，如：221.0.0.1           
             
             //把请求参数打包成数组
             Map<String, String> sParaTemp = new HashMap<String, String>();
             sParaTemp.put("charset", "utf-8");
             sParaTemp.put("rm", "2");
-//            sParaTemp.put("RETURNURL", return_url);
-//            sParaTemp.put("CANCELURL", notify_url);
             sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
-            sParaTemp.put("callback_url", "callback_url");
-            sParaTemp.put("cancel_return ", "cancel_return");
-            sParaTemp.put("shopping_url ", "shopping_url");
+//            sParaTemp.put("callback_url", "callback_url");
+//            sParaTemp.put("cancel_return ", "cancel_return");
+//            sParaTemp.put("shopping_url ", "shopping_url");
             sParaTemp.put("notify_url ", notify_url);
-            sParaTemp.put("return", "https://www.baidu.com");
+//            sParaTemp.put("return", "https://www.baidu.com");
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
             sParaTemp.put("business", PpPayConfigManager.getMerchantAccountId(tenantId));
             
             //建立请求
-            String sHtmlText = buildRequest(seller_key,
-                    PpPayConfigManager.getCheckoutButtonUrl(), sParaTemp, "post", "确认");
-//            LOG.info("向PayPalWEB即时到账交易接口发起支付请求：" + sHtmlText);
-//            sHtmlText = "<form id='ppsubmit' name='ppsubmit' action='https://www.sandbox.paypal.com/cgi-bin/webscr' method='post' _input_charset='utf-8'><input type='hidden' name='cmd' value='_xclick'/><input type='hidden' name='business' value='Test-#@gmail.com'/><input type='hidden' name='custom' value='98E1235253A497T678678NBOFH0EBM7O7H5'/><input type='hidden' name='amount' value='21.30'/><input type='hidden' name='currency_code' value='USD'/><input type='hidden' name='on0' value='User Account'/><input type='hidden' name='os0' value='vip@sbs.cn'/><input type='hidden' name='on1' value='Description'/><input type='hidden' name='os1' value='Test Gif - Silicon Scraper($0.01*1), 12-pack Mini Oval Silicone Reusable Baking Cup($6.29*1); deliovery cost:$15.00; '/><input type='hidden' name='notify_url' value='http://test/paypal.htm'/><input type='hidden' name='return' value='http://test/paypal.htm'/><input type='hidden' name='cancel_return' value='http://test/cart.htm'/><input type='hidden' name='cs' value='1'/><input type='hidden' name='address1' value='USA-NewYork-SBCL 12431'/><input type='hidden' name='address2' value='USA-NewYork-SBCL werw'/><input type='submit' value='Go to paypal' style='display:none;'></form><script>document.forms['ppsubmit'].submit();</script>";
+            String sHtmlText = buildRequest(PpPayConfigManager.getCheckoutButtonUrl(), sParaTemp, "post", "确认");
             LOGGER.info("向PayPalWEB即时到账交易接口发起支付请求：" + sHtmlText);
             printWriter.println(sHtmlText);
             printWriter.flush();
@@ -135,26 +113,21 @@ public class PpPayController extends TradeBaseController {
             LOGGER.error("PayPal网页支付发生错误", ex);
             throw ex;
         } 
-    
 	}
 	
-	public static String buildRequest(String key, final String payGateway, Map<String, String> sParaTemp, String strMethod, String strButtonName) {
+	public static String buildRequest(final String payGateway, Map<String, String> sParaTemp, String strMethod, String strButtonName) {
         //待请求参数数组
-        Map<String, String> sPara = buildRequestPara(key, sParaTemp);
+        Map<String, String> sPara = buildRequestPara(sParaTemp);
         List<String> keys = new ArrayList<String>(sPara.keySet());
 
         StringBuilder sbHtml = new StringBuilder();
 
-        sbHtml.append("<form id=\"ppsubmit\" name=\"ppsubmit\" action=\"" + payGateway
-                       + "\" method=\"" + strMethod
-                      + "\">");
-
+        sbHtml.append("<form id=\"ppsubmit\" name=\"ppsubmit\" action=\"" + payGateway + "\" method=\"" + strMethod + "\">");
         for (int i = 0; i < keys.size(); i++) {
             String name = (String) keys.get(i);
             String value = (String) sPara.get(name);
             sbHtml.append("<input type=\"hidden\" name=\"" + name + "\" value=\"" + value + "\"/>");
         }
-
         //submit按钮控件请不要含有name属性
         sbHtml.append("<input type=\"submit\" value=\"" + strButtonName + "\" style=\"display:none;\"></form>");
         sbHtml.append("<script>document.forms['ppsubmit'].submit();</script>");
@@ -162,20 +135,9 @@ public class PpPayController extends TradeBaseController {
         return sbHtml.toString();
     }
 	
-	private static Map<String, String> buildRequestPara(String key, Map<String, String> sParaTemp) {
+	private static Map<String, String> buildRequestPara(Map<String, String> sParaTemp) {
         //除去数组中的空值和签名参数
-        Map<String, String> sPara = AlipayCore.paraFilter(sParaTemp);
-        //生成签名结果
-//        String mysign = buildRequestMysign(key, sPara);
-
-        //签名结果与签名方式加入请求提交参数组中
-//        sPara.put("sign", mysign);
-//        String service = sPara.get("service");
-//        if (!"alipay.wap.trade.create.direct".equals(service)
-//                && !"alipay.wap.auth.authAndExecute".equals(service)) {
-//            sPara.put("sign_type", AliPayConfigManager.SIGN_TYPE);
-//        }
-        return sPara;
+        return AlipayCore.paraFilter(sParaTemp);
     }
 	
 	public static String buildRequestMysign(String key, Map<String, String> sPara) {
@@ -192,6 +154,19 @@ public class PpPayController extends TradeBaseController {
         LOGGER.info("paypalWEB后台通知...");
         showParams(request);
         try {
+        	// 从 PayPal 出读取 POST 信息同时添加变量„cmd‟ 
+        	Enumeration<String> en = request.getParameterNames(); 
+        	String str = "cmd=_notify-validate"; 
+        	while (en.hasMoreElements()) { 
+        		String paramName = (String) en.nextElement(); 
+        		String paramValue = request.getParameter(paramName); 
+        		str = str + "&" +paramName + "=" + URLEncoder.encode(paramValue, "gb2312"); 
+        	} 
+        	LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str); 
+        	// 将信息 POST 回给 PayPal 进行验证    测试环境先省略这一步 //HTTPWEB是我自己的类 网上有很多HTTP请求的方法 
+        	String result = HttpClientUtil.sendPost("https://ipnpb.sandbox.paypal.com/cgi-bin/webscr", str); 
+        	LOGGER.info("paypal支付确认结果result="+result);
+        	
             request.setCharacterEncoding("utf-8");
             response.setContentType("text/html;charset=utf-8");
             /* 1.获取paypal传递过来的参数 */
@@ -220,7 +195,6 @@ public class PpPayController extends TradeBaseController {
                 return;
             } 
             
-//            String[] orderInfoArray = this.splitTradeOrderId(out_trade_no);
             String tenantId = out_trade_no.split("#")[0]; 
             String orderId = out_trade_no.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
@@ -244,7 +218,7 @@ public class PpPayController extends TradeBaseController {
                         trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.PP);
             }
             
-            response.getWriter().write("success"); // paypal接收不到“success” 就会在24小时内重复调用多次
+            response.getWriter().write("success"); 
         } catch(IOException ex) {
             LOGGER.error("paypalWEB后台通知失败", ex);
         } catch(Exception ex) {
@@ -253,8 +227,8 @@ public class PpPayController extends TradeBaseController {
     }
 	
 	private void showParams(HttpServletRequest request) {  
-        Map map = new HashMap();  
-        Enumeration paramNames = request.getParameterNames();  
+        Map<String, String> map = new HashMap<String, String>();  
+        Enumeration<?> paramNames = request.getParameterNames();  
         while (paramNames.hasMoreElements()) {  
             String paramName = (String) paramNames.nextElement();  
   
@@ -268,11 +242,11 @@ public class PpPayController extends TradeBaseController {
         }  
   
         Set<Map.Entry<String, String>> set = map.entrySet();  
-        System.out.println("------------------------------");  
-        for (Map.Entry entry : set) {  
+        LOGGER.info("------------------------------");  
+        for (Map.Entry<String, String> entry : set) {  
             System.out.println(entry.getKey() + ":" + entry.getValue());  
         }  
-        System.out.println("------------------------------");  
+        LOGGER.info("------------------------------");  
     }
 	
 	/**
@@ -292,20 +266,14 @@ public class PpPayController extends TradeBaseController {
             request.setCharacterEncoding("utf-8");
             response.setContentType("text/html;charset=utf-8");
             /* 1.获取paypal传递过来的参数 */
-            String result = request.getParameter("is_success");
-            String out_trade_no = request.getParameter("out_trade_no");
+            String out_trade_no = request.getParameter("invoice");
             String trade_no = request.getParameter("trade_no");
             LOGGER.info("paypalWEB支付前台通知开始:交易订单号[" + out_trade_no + "]");
-            LOGGER.info("paypalWEB支付前台通知开始:result[" + result + "]");
             
-            String payStates = PayConstants.ReturnCode.FAILD;
-            if (PayConstants.AliPayReturnCode.RETURN_URL_T.equals(result)) {
-                payStates = PayConstants.ReturnCode.SUCCESS;
-            }
+            String payStates = PayConstants.ReturnCode.SUCCESS;
             
-//            String[] orderInfoArray = this.splitTradeOrderId(out_trade_no);
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = out_trade_no;//orderInfoArray[1]; 
+            String tenantId = out_trade_no.split("#")[0]; 
+            String orderId = out_trade_no.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOGGER.error("paypalWEB前台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -316,7 +284,7 @@ public class PpPayController extends TradeBaseController {
             
             String htmlStr = PaymentNotifyUtil.notifyClientImmediately(returnUrl, tenantId,
                     orderId, trade_no, tradeRecord.getSubject(), orderAmount, payStates,
-                    PayConstants.PayOrgCode.ZFB);
+                    PayConstants.PayOrgCode.PP);
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(htmlStr);
         } catch (IOException ex) {
