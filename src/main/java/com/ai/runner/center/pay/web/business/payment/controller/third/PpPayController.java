@@ -113,7 +113,7 @@ public class PpPayController extends TradeBaseController {
             sParaTemp.put("cancel_return ", "cancel_return");
             sParaTemp.put("shopping_url ", "shopping_url");
             sParaTemp.put("notify_url ", notify_url);
-            sParaTemp.put("return", "www.baidu.com");
+            sParaTemp.put("return", "http://www.baidu.com");
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
