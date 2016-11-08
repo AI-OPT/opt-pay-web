@@ -3,9 +3,11 @@ package com.ai.runner.center.pay.web.business.payment.controller.third;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -189,6 +191,7 @@ public class PpPayController extends TradeBaseController {
 	@RequestMapping(value = "/webNotify")
     public void ppWebNotify(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.debug("paypalWEB后台通知...");
+        showParams(request);
         try {
             request.setCharacterEncoding("utf-8");
             response.setContentType("text/html;charset=utf-8");
@@ -251,6 +254,29 @@ public class PpPayController extends TradeBaseController {
         }    
     }
 	
+	private void showParams(HttpServletRequest request) {  
+        Map map = new HashMap();  
+        Enumeration paramNames = request.getParameterNames();  
+        while (paramNames.hasMoreElements()) {  
+            String paramName = (String) paramNames.nextElement();  
+  
+            String[] paramValues = request.getParameterValues(paramName);  
+            if (paramValues.length == 1) {  
+                String paramValue = paramValues[0];  
+                if (paramValue.length() != 0) {  
+                    map.put(paramName, paramValue);  
+                }  
+            }  
+        }  
+  
+        Set<Map.Entry<String, String>> set = map.entrySet();  
+        System.out.println("------------------------------");  
+        for (Map.Entry entry : set) {  
+            System.out.println(entry.getKey() + ":" + entry.getValue());  
+        }  
+        System.out.println("------------------------------");  
+    }
+	
 	/**
      * paypalWEB即时到账前台通知地址
      * @param request
@@ -263,6 +289,7 @@ public class PpPayController extends TradeBaseController {
     public void ppWebReturn(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         LOGGER.debug("paypalWEB前台通知...");
+        showParams(request);
         try {
             request.setCharacterEncoding("utf-8");
             response.setContentType("text/html;charset=utf-8");
