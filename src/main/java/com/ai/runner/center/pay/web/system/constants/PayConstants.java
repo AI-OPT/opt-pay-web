@@ -29,6 +29,8 @@ public final class PayConstants {
      */
     public static final String PAY_URL = "payurl";
 
+	public static final String PAYPAL_TRANSACTION_COMPLETED = "Completed";
+
     /**
      * 终端来源
      * 

@@ -107,7 +107,7 @@ public class PpPayController extends TradeBaseController {
             sParaTemp.put("rm", "2");
 //            sParaTemp.put("RETURNURL", return_url);
 //            sParaTemp.put("CANCELURL", notify_url);
-//            sParaTemp.put("CALLBACK", notify_url);
+            sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
             sParaTemp.put("callback_url", "callback_url");
             sParaTemp.put("cancel_return ", "cancel_return");
@@ -198,22 +198,21 @@ public class PpPayController extends TradeBaseController {
             String subject = request.getParameter("subject");// 商品名称
             String trade_no = request.getParameter("trade_no"); // paypal交易号
             String buyer_email = request.getParameter("buyer_email");// 买家paypal账号
-            String out_trade_no = request.getParameter("out_trade_no");// 商户网站唯一订单号
+            String out_trade_no = request.getParameter("invoice");// 商户网站唯一订单号
             String notify_time = request.getParameter("notify_time");// 通知时间
-            String trade_status = request.getParameter("trade_status");//
+            String paymentStatus = request.getParameter("payment_status");//
             String seller_email = request.getParameter("seller_email");// 卖家paypal账号
-            String notify_id = request.getParameter("notify_id");// 通知校验ID
+            String notify_id = request.getParameter("ipn_track_id");// 通知校验ID
                                                                  // 通知校验ID。唯一识别通知内容。重发相同内容的通知时，该值不变。(如果已经成功，则统一个id不处理)
             LOGGER.info("paypalWEB后台通知参数：subject[" + subject + "];trade_no[" + trade_no
                     + "];buyer_email[" + buyer_email + "];out_trade_no[" + out_trade_no + "];"
-                    + "notify_time[" + notify_time + "];trade_status[" + trade_status
+                    + "notify_time[" + notify_time + "];payment_status[" + paymentStatus
                     + "];seller_email[" + seller_email + "];notify_id[" + notify_id + "];");
             
             /* 2.解析返回状态 */
             String payStates = PayConstants.ReturnCode.FAILD;
             // 支付成功的两个状态
-            if (PayConstants.AliPayReturnCode.TRADE_FINISHED.equals(trade_status)
-                    || PayConstants.AliPayReturnCode.TRADE_SUCCESS.equals(trade_status)) {
+            if (PayConstants.PAYPAL_TRANSACTION_COMPLETED.equals(paymentStatus)) {
                 payStates = PayConstants.ReturnCode.SUCCESS;
             }
             /* 3.如果成功，更新支付流水并回调请求端，否则什么也不做 */
@@ -222,8 +221,8 @@ public class PpPayController extends TradeBaseController {
             } 
             
 //            String[] orderInfoArray = this.splitTradeOrderId(out_trade_no);
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = out_trade_no;//orderInfoArray[1]; 
+            String tenantId = out_trade_no.split("#")[0]; 
+            String orderId = out_trade_no.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOGGER.error("paypalWEB后台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -242,7 +241,7 @@ public class PpPayController extends TradeBaseController {
                 
                 /* 5.异步通知业务系统订单支付状态 */
                 PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
+                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.PP);
             }
             
             response.getWriter().write("success"); // paypal接收不到“success” 就会在24小时内重复调用多次
