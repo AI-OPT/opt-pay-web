@@ -191,13 +191,12 @@ public class YlPayController extends TradeBaseController {
                 throw new SystemException("银联wap支付前台通知延签失败！");
             }
 
-            String tradeOrderId = params.get("orderId");
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = tradeOrderId;//orderInfoArray[1]; 
+            String tenantId = params.get("reqReserved"); 
+            String orderId = params.get("orderId");
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if (tradeRecord == null) {
                 LOG.error("银联手机网页支付前台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
-                throw new SystemException("支付宝手机网页支付前台通知出错，获取订单信息失败!");
+                throw new SystemException("银联手机网页支付前台通知出错，获取订单信息失败!");
             }
             String returnUrl = tradeRecord.getReturnUrl();
             String orderAmount = String.format("%.2f",
@@ -249,9 +248,8 @@ public class YlPayController extends TradeBaseController {
                 throw new SystemException("银联移动支付后台通知延签失败！");
             }
 
-            String tradeOrderId = params.get("orderId");
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = tradeOrderId;//orderInfoArray[1]; 
+            String tenantId = params.get("reqReserved"); 
+            String orderId = params.get("orderId");
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if (tradeRecord == null) {
                 LOG.error("银联移动支付后台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
