@@ -94,7 +94,7 @@ public class PpPayController extends TradeBaseController {
 //            sParaTemp.put("cancel_return ", "cancel_return");
 //            sParaTemp.put("shopping_url ", "shopping_url");
             sParaTemp.put("notify_url ", notify_url);
-//            sParaTemp.put("return", "http://10.1.235.246:8081/opt-pay/paypal/webReturn");
+//            sParaTemp.put("return", "http://10.19.13.24:14110/opt-pay/paypal/webReturn");
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");

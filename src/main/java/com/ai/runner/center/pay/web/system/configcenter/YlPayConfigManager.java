@@ -81,7 +81,7 @@ public class YlPayConfigManager extends AbstractPayConfigManager {
      */
     @Override
     public String getPayActionUrl(String requestSource) {
-        if(PayConstants.RequestSource.WAP.equals(requestSource)) {
+        if(PayConstants.RequestSource.WAP.equals(requestSource) || PayConstants.RequestSource.WEB.equals(requestSource)) {
             return YL_WAP_PAY_ACTION;
         } else if(PayConstants.RequestSource.APP.equals(requestSource)) {
             return YL_APP_PAY_ACTION;
