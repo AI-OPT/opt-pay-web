@@ -157,7 +157,7 @@ public class AlipayController extends TradeBaseController {
             sParaTemp.put("notify_url", notify_url);
             sParaTemp.put("return_url", return_url);
             sParaTemp.put("seller_email", seller_email);
-            sParaTemp.put("out_trade_no", out_trade_no);
+            sParaTemp.put("out_trade_no", tenantId + "_" + out_trade_no);
             sParaTemp.put("subject", subject);
             sParaTemp.put("total_fee", total_fee);
             sParaTemp.put("body", body);
@@ -221,9 +221,8 @@ public class AlipayController extends TradeBaseController {
                 return;
             } 
             
-//            String[] orderInfoArray = this.splitTradeOrderId(out_trade_no);
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = out_trade_no;//orderInfoArray[1]; 
+            String tenantId = out_trade_no.split("#")[0]; 
+            String orderId = out_trade_no.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOG.error("支付宝WEB后台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -280,9 +279,8 @@ public class AlipayController extends TradeBaseController {
                 payStates = PayConstants.ReturnCode.SUCCESS;
             }
             
-//            String[] orderInfoArray = this.splitTradeOrderId(out_trade_no);
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = out_trade_no;//orderInfoArray[1]; 
+            String tenantId = out_trade_no.split("#")[0]; 
+            String orderId = out_trade_no.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOG.error("支付宝WEB前台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
