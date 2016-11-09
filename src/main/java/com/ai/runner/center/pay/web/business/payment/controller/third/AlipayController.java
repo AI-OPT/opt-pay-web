@@ -43,6 +43,9 @@ import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigUtil;
 import com.ai.runner.center.pay.web.system.util.XMLUtil;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradeWapPayRequest;
 
 /**
  * alipay controller
@@ -305,13 +308,6 @@ public class AlipayController extends TradeBaseController {
     
     /**
      * 支付宝WAP支付接口
-     * @param tenantId
-     * @param orderId
-     * @param request
-     * @param response
-     * @author fanpw
-     * @ApiDocMethod
-     * @ApiCode
      */
     @RequestMapping(value = "/wapPayment/alipayapi")
     public void alipayWapPay(@RequestParam(value = "tenantId", required = true) String tenantId, 
@@ -413,6 +409,147 @@ public class AlipayController extends TradeBaseController {
     }
     
     /**
+     * 支付宝WAP支付接口
+     */
+    @RequestMapping(value = "/wapPay201611")
+    public void wapPay201611(@RequestParam(value = "tenantId", required = true) String tenantId, 
+            @RequestParam(value = "orderId", required = true) String orderId,
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
+        try {
+            response.setContentType("text/html;charset=utf-8");
+            LOG.info("支付宝wap支付开始:商户订单号[" + orderId + "]" + " ，租户标识： " + tenantId);
+            String infoMd5 = (String) request.getAttribute("infoMd5");   
+            if(StringUtil.isBlank(infoMd5)) {
+                throw new SystemException("支付失败，传入的加密信息为空!");
+            }
+            String infoStr = orderId + VerifyUtil.SEPARATOR + tenantId;
+            String key = AbstractPayConfigManager.getRequestKey();
+            if (!VerifyUtil.checkParam(infoStr, infoMd5, key)) {
+                LOG.error("延签失败：传入的参数已被篡改！" + infoStr);
+                throw new BusinessException(ExceptCodeConstants.ILLEGAL_PARAM, "传入的支付请求参数非法,参数有误或已被篡改！");
+            }
+            TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
+            if(tradeRecord == null) {
+                LOG.error("发起支付时查询不到此订单支付请求数据： 租户标识： " + tenantId + " ，订单号： " + orderId);
+                throw new SystemException("发起支付时查询订单信息异常!");
+            }
+            
+            String basePath = AbstractPayConfigManager.getPayUrl();
+            String subject = "网上支付";
+            if (!StringUtil.isBlank(tradeRecord.getSubject())) {
+                subject = tradeRecord.getSubject();
+            }
+            String total_fee = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额    
+//            String format = "xml"; // 返回格式
+//            String v = "2.0"; // 必填，不需要修改
+//            String req_id = DateUtil.getDateString(DateUtil.YYYYMMDDHHMMSS); // 请求号
+            String notifyUrl = basePath + WAP_NOTIFY_URL;
+            String returnUrl = basePath + WAP_RETURN_URL;
+//            String merchant_url = tradeRecord.getMerchantUrl() + "?payStates=01";
+//            String seller_email = ConfigUtil.getProperty(tenantId,
+//                    AliPayConfigManager.PAY_ORG_NAME, AliPayConfigManager.WAP_SELLER_EMAIL); // 卖家支付宝帐户
+            String partner = ConfigUtil.getProperty(tenantId, AliPayConfigManager.PAY_ORG_NAME,
+                    AliPayConfigManager.WAP_SELLER_PID);
+//            String seller_key = ConfigUtil.getProperty(tenantId, AliPayConfigManager.PAY_ORG_NAME,
+//                    AliPayConfigManager.WAP_SELLER_KEY);
+            String out_trade_no = tradeRecord.getTradeOrderId(); //商户订单号
+            LOG.info("支付宝wap支付开始:交易订单号[" + out_trade_no + "]");
+            // 请求业务参数详细
+//            String req_dataToken = "<direct_trade_create_req>" + "<notify_url>" + notifyUrl
+//                    + "</notify_url>" + "<call_back_url>" + returnUrl + "</call_back_url>"
+//                    + "<seller_account_name>" + seller_email + "</seller_account_name>"
+//                    + "<out_trade_no>" + out_trade_no + "</out_trade_no>" + "<subject>" + subject
+//                    + "</subject>" + "<total_fee>" + total_fee + "</total_fee>" + "<merchant_url>"
+//                    + merchant_url + "</merchant_url>" + "</direct_trade_create_req>";
+            // 把请求参数打包成数组
+//            Map<String, String> sParaTempToken = new HashMap<String, String>();
+//            sParaTempToken.put("service", "alipay.wap.trade.create.direct");
+//            sParaTempToken.put("partner", partner);
+//            sParaTempToken.put("_input_charset", AliPayConfigManager.INPUT_CHARSET);
+//            sParaTempToken.put("sec_id", AliPayConfigManager.SIGN_TYPE);
+//            sParaTempToken.put("format", format);
+//            sParaTempToken.put("v", v);
+//            sParaTempToken.put("req_id", req_id);
+//            sParaTempToken.put("req_data", req_dataToken);
+//            // 公共参数
+//            assembleCommonParam(sParaTempToken);
+//            
+//            
+//            LOG.info("支付宝获取token参数：" + sParaTempToken);
+            // 建立请求
+//            String sHtmlTextToken = AlipaySubmit.buildRequest(seller_key,
+//                    AliPayConfigManager.ALIPAY_GATEWAY_NEW_WAP, "", "", sParaTempToken);
+//            LOG.info("支付宝获取token：" + sHtmlTextToken);
+            // URLDECODE返回的信息
+//            sHtmlTextToken = URLDecoder.decode(sHtmlTextToken, AliPayConfigManager.INPUT_CHARSET);
+            // 获取token
+//            String request_token = AlipaySubmit.getRequestToken(sHtmlTextToken);
+            // //////////////////////////////////根据授权码token调用交易接口alipay.wap.auth.authAndExecute//////////////////////////////////////
+            // 业务详细
+//            LOG.info("获取token值：" + request_token);
+//            String req_data = "<auth_and_execute_req><request_token>" + request_token
+//                    + "</request_token></auth_and_execute_req>";
+            // 必填
+            // 把请求参数打包成数组
+            Map<String, String> sParaTemp = new HashMap<String, String>();
+            // 公用回传参数, 本参数必须进行UrlEncode之后才可以发送给支付宝
+            sParaTemp.put("passback_params", tenantId);
+//            sParaTemp.put("partner", partner);
+//            sParaTemp.put("_input_charset", AliPayConfigManager.INPUT_CHARSET);
+//            sParaTemp.put("sec_id", AliPayConfigManager.SIGN_TYPE);
+//            sParaTemp.put("format", format);
+//            sParaTemp.put("v", v);
+            // 业务参数
+            sParaTemp.put("out_trade_no", tenantId + "_" + orderId);
+            sParaTemp.put("subject", subject);
+            sParaTemp.put("seller_id", partner);
+            sParaTemp.put("total_amount", total_fee);
+            sParaTemp.put("product_code", "QUICK_WAP_PAY");
+            // 建立请求
+//            String sHtmlText = AlipaySubmit.buildRequest(seller_key,
+//                    AliPayConfigManager.ALIPAY_GATEWAY_NEW_WAP, sParaTemp, "get", "确认");
+//            LOG.info("支付宝手机网页支付网页报文：" + sHtmlText);
+//            response.getWriter().println(sHtmlText);
+//            response.getWriter().flush();
+            
+            String APP_ID = "2016110902676346";
+        	String APP_PRIVATE_KEY = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAKb/gUy2WpoVu60lzoRj8wRmILubFkBrFBX4unM5MHoxpC+3r/a1w/ImeM9LQTwQb2gGPzSbo7kvChSF3yR5a5o6ak/wCaTMs+aSi7RikdUZuoZm7V+6pANa1o7eUAw2jWVCM0FjtfP1M2G+JfuopDMO6hLzlZ19N4wSxOhXJTOFAgMBAAECgYB7hYPDFSKg1DB0WwGNJUzMVSoi+gyUa194/PgUYBm+WFeEQA70oe+kfdZgJd7Dqbhtrik0JWcNg4CmO3sYxILUaD5hsSZuE5B+E9XIvw2mJr53zQx61B2YGectAyDmxNo1gKBCoNGqtsQFfFVZP2REFY8QdaDUumGsQSHWrSwkwQJBAM+H0Om4MvjePY0KGOA9peJuy5Ma+4x8tfiA76p2I4/rjXIjrJ1sGdTDJyZ68UaNTXFje0XWSOfxrWAPuwtd5XUCQQDOAEQUbw3uRMaheRH24/4D9IqsAEYgug/o6RtainHtrF3HURCrCV4KU/PjOFPKnBaejKvA8UrxqyA3UfvKioPRAkA5tvnApft2/sd7W92DL2Hc0RdId+6RKXWqAKGmdGh7c/TIU2eD+DZO118h8nr7Nfzdld8Ikwl/h9TBrF5GUPypAkBErXAFA/U3/3PdN3jWv7Ha7bchmsHGfWF6e+Sjrc5Ht5RYM92DuA7DELQZh5jfzmP4HdvQ6mDa6vtFli6EmuNRAkA/81vPS1HPL1JkExlzludShCAh1hI4T0YHQe42vbHaf6gsLQwVTfikvtrYuJLf8Nxs3YVbUQDp2SORD9nh52qq";
+        	String ALIPAY_PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDI6d306Q8fIfCOaTXyiUeJHkrIvYISRcc73s3vF1ZT7XN8RNPwJxo8pWaJMmvyTn9N4HQ632qJBVHf8sxHi/fEsraprwCtzvzQETrNRwVxLO5jVmRGi60j8Ue1efIlzPXV9je9mkjzOmdssymZkh2QhUrCmZYI/FCEa3/cNMW0QIDAQAB";
+        	// 获得初始化的AlipayClient
+        	AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", APP_ID, APP_PRIVATE_KEY, "json", "utf-8", ALIPAY_PUBLIC_KEY);
+        	// 创建API对应的request
+        	AlipayTradeWapPayRequest alipayRequest = new AlipayTradeWapPayRequest();
+        	// 在公共参数中设置回跳和通知地址
+        	alipayRequest.setReturnUrl(returnUrl);
+            alipayRequest.setNotifyUrl(notifyUrl);
+            // 填充业务参数
+            alipayRequest.setBizContent(sParaTemp.toString());
+            // 调用SDK生成表单
+            String form = alipayClient.pageExecute(alipayRequest).getBody(); 
+            LOG.info("alipay for wap return form: " + form);
+            // 直接将完整的表单html输出到页面
+            response.getWriter().write(form);
+            response.getWriter().flush();
+        } catch(IOException ex) {
+            LOG.error("支付宝wap支付发生错误", ex);
+            throw ex;
+        } catch(Exception ex) {
+            LOG.error("支付宝wap支付发生错误", ex);
+            throw ex;
+        } 
+    }
+    
+    private void assembleCommonParam(Map<String, String> sParaTempToken) {
+    	sParaTempToken.put("app_id", "2016110902676346");
+    	sParaTempToken.put("method", "alipay.trade.wap.pay.return");
+    	sParaTempToken.put("sign_type", "RSA");
+    	sParaTempToken.put("sign", "2016110902676346");
+    	sParaTempToken.put("charset", "utf-8");
+    	sParaTempToken.put("timestamp", DateUtil.getDateString(DateUtil.DATETIME_FORMAT));
+    	sParaTempToken.put("version", "1.0");
+	}
+
+	/**
      * 支付宝wap支付前台通知地址
      * @param request
      * @param response

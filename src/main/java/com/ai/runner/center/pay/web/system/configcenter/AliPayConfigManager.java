@@ -91,6 +91,8 @@ public class AliPayConfigManager extends AbstractPayConfigManager {
      */
     private static final String ZFB_WAP_PAY_ACTION = "/alipay/wapPayment/alipayapi";
     
+    private static final String ZFB_WAP_PAY_ACTION_201611 = "/alipay/wapPay201611";
+    
     /**
      * 支付宝app支付响应地址
      */
@@ -129,7 +131,7 @@ public class AliPayConfigManager extends AbstractPayConfigManager {
         if(PayConstants.RequestSource.WEB.equals(requestSource)) {
             return ZFB_WEB_PAY_ACTION;
         } else if(PayConstants.RequestSource.WAP.equals(requestSource)) {
-            return ZFB_WEB_PAY_ACTION;
+            return ZFB_WAP_PAY_ACTION_201611;
         } else if(PayConstants.RequestSource.WEIXIN.equals(requestSource)) {
             return ZFB_WAP_PAY_ACTION;
         } else if(PayConstants.RequestSource.APP.equals(requestSource)) {
