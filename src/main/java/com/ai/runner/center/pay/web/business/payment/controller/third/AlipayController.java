@@ -279,8 +279,8 @@ public class AlipayController extends TradeBaseController {
                 payStates = PayConstants.ReturnCode.SUCCESS;
             }
             
-            String tenantId = out_trade_no.split("#")[0]; 
-            String orderId = out_trade_no.split("#")[1]; 
+            String tenantId = out_trade_no.split("_")[0]; 
+            String orderId = out_trade_no.split("_")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOG.error("支付宝WEB前台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
