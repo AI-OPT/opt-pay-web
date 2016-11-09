@@ -94,7 +94,7 @@ public class PpPayController extends TradeBaseController {
 //            sParaTemp.put("cancel_return ", "cancel_return");
 //            sParaTemp.put("shopping_url ", "shopping_url");
             sParaTemp.put("notify_url ", notify_url);
-            sParaTemp.put("return", "http://10.19.13.24:14110/opt-pay/paypal/webReturn");
+            sParaTemp.put("return", "http://10.1.235.246:8081/opt-pay/paypal/webReturn");
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
@@ -156,15 +156,15 @@ public class PpPayController extends TradeBaseController {
         try {
         	// 从 PayPal 出读取 POST 信息同时添加变量„cmd‟ 
         	Enumeration<String> en = request.getParameterNames(); 
-        	String str = "";//"cmd=_notify-validate"; 
+        	String str = "cmd=_notify-validate"; 
         	while (en.hasMoreElements()) { 
         		String paramName = (String) en.nextElement(); 
         		String paramValue = request.getParameter(paramName); 
         		str = str + "&" +paramName + "=" + URLEncoder.encode(paramValue, request.getParameter("charset")); 
         	} 
-        	LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str.substring(1)); 
+        	LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str); 
         	// 将信息 POST 回给 PayPal 进行验证    测试环境先省略这一步 //HTTPWEB是我自己的类 网上有很多HTTP请求的方法 
-        	String result = HttpClientUtil.sendPost("https://ipnpb.sandbox.paypal.com/cgi-bin/webscr", str.substring(1)); 
+        	String result = HttpClientUtil.sendPost("https://ipnpb.sandbox.paypal.com/cgi-bin/webscr", str); 
         	LOGGER.info("paypal支付确认结果result="+result);
         	
             request.setCharacterEncoding("utf-8");

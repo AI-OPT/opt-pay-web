@@ -8,6 +8,7 @@ public class PpPayConfigManager extends AbstractPayConfigManager {
 	private static final String PAYPAL_PAYAPI = "/paypal/payapi";
 	public static final String CHECKOUT_BUTTON_URL = "checkoutButtonUrl";
 	private static final String MERCHANT_ACCOUNT_ID = "merchantAccountId";
+	private static final String IPN_URL = "ipnUrl";
 
 	@Override
 	public String getPayActionUrl(String requestSource) {
@@ -45,6 +46,10 @@ public class PpPayConfigManager extends AbstractPayConfigManager {
 
 	public static String getMerchantAccountId(String tenantId) {
 		return ConfigUtil.getProperty(tenantId, PP_ORG_CODE, MERCHANT_ACCOUNT_ID);
+	}
+
+	public static String getIpnUrl() {
+		return ConfigUtil.getProperty(PP_ORG_CODE, IPN_URL);
 	}
 
 }
