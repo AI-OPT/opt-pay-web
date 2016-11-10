@@ -43,6 +43,7 @@ import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigUtil;
 import com.ai.runner.center.pay.web.system.util.XMLUtil;
+import com.alibaba.fastjson.JSON;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
@@ -503,6 +504,7 @@ public class AlipayController extends TradeBaseController {
             sParaTemp.put("out_trade_no", tenantId + "_" + orderId);
             sParaTemp.put("subject", subject);
             sParaTemp.put("seller_id", partner);
+            sParaTemp.put("seller_id", "2088102178816785");
             sParaTemp.put("total_amount", total_fee);
             sParaTemp.put("product_code", "QUICK_WAP_PAY");
             // 建立请求
@@ -512,18 +514,18 @@ public class AlipayController extends TradeBaseController {
 //            response.getWriter().println(sHtmlText);
 //            response.getWriter().flush();
             
-            String APP_ID = "2016110902676346";
+            String APP_ID = "2016100900646979";//"2016110902676346";
         	String APP_PRIVATE_KEY = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAKb/gUy2WpoVu60lzoRj8wRmILubFkBrFBX4unM5MHoxpC+3r/a1w/ImeM9LQTwQb2gGPzSbo7kvChSF3yR5a5o6ak/wCaTMs+aSi7RikdUZuoZm7V+6pANa1o7eUAw2jWVCM0FjtfP1M2G+JfuopDMO6hLzlZ19N4wSxOhXJTOFAgMBAAECgYB7hYPDFSKg1DB0WwGNJUzMVSoi+gyUa194/PgUYBm+WFeEQA70oe+kfdZgJd7Dqbhtrik0JWcNg4CmO3sYxILUaD5hsSZuE5B+E9XIvw2mJr53zQx61B2YGectAyDmxNo1gKBCoNGqtsQFfFVZP2REFY8QdaDUumGsQSHWrSwkwQJBAM+H0Om4MvjePY0KGOA9peJuy5Ma+4x8tfiA76p2I4/rjXIjrJ1sGdTDJyZ68UaNTXFje0XWSOfxrWAPuwtd5XUCQQDOAEQUbw3uRMaheRH24/4D9IqsAEYgug/o6RtainHtrF3HURCrCV4KU/PjOFPKnBaejKvA8UrxqyA3UfvKioPRAkA5tvnApft2/sd7W92DL2Hc0RdId+6RKXWqAKGmdGh7c/TIU2eD+DZO118h8nr7Nfzdld8Ikwl/h9TBrF5GUPypAkBErXAFA/U3/3PdN3jWv7Ha7bchmsHGfWF6e+Sjrc5Ht5RYM92DuA7DELQZh5jfzmP4HdvQ6mDa6vtFli6EmuNRAkA/81vPS1HPL1JkExlzludShCAh1hI4T0YHQe42vbHaf6gsLQwVTfikvtrYuJLf8Nxs3YVbUQDp2SORD9nh52qq";
         	String ALIPAY_PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDI6d306Q8fIfCOaTXyiUeJHkrIvYISRcc73s3vF1ZT7XN8RNPwJxo8pWaJMmvyTn9N4HQ632qJBVHf8sxHi/fEsraprwCtzvzQETrNRwVxLO5jVmRGi60j8Ue1efIlzPXV9je9mkjzOmdssymZkh2QhUrCmZYI/FCEa3/cNMW0QIDAQAB";
         	// 获得初始化的AlipayClient
-        	AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", APP_ID, APP_PRIVATE_KEY, "json", "utf-8", ALIPAY_PUBLIC_KEY);
+        	AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipaydev.com/gateway.do", APP_ID, APP_PRIVATE_KEY, "json", "utf-8", ALIPAY_PUBLIC_KEY);
         	// 创建API对应的request
         	AlipayTradeWapPayRequest alipayRequest = new AlipayTradeWapPayRequest();
         	// 在公共参数中设置回跳和通知地址
         	alipayRequest.setReturnUrl(returnUrl);
             alipayRequest.setNotifyUrl(notifyUrl);
             // 填充业务参数
-            alipayRequest.setBizContent(sParaTemp.toString());
+            alipayRequest.setBizContent(JSON.toJSONString(sParaTemp));
             // 调用SDK生成表单
             String form = alipayClient.pageExecute(alipayRequest).getBody(); 
             LOG.info("alipay for wap return form: " + form);
