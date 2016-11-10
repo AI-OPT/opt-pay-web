@@ -72,7 +72,7 @@ public class AlipayController extends TradeBaseController {
 
     /** wap支付后台通知地址 **/
     private static final String WAP_NOTIFY_URL = "/alipay/wapNotify";
-    
+    private static final String WAP_NOTIFY_URL_201611 = "/alipay/wapNotify201611";
 
     /** app支付后台通知地址 **/
     private static final String APP_NOTIFY_URL = "/alipay/appNotify";
@@ -444,7 +444,7 @@ public class AlipayController extends TradeBaseController {
 //            String format = "xml"; // 返回格式
 //            String v = "2.0"; // 必填，不需要修改
 //            String req_id = DateUtil.getDateString(DateUtil.YYYYMMDDHHMMSS); // 请求号
-            String notifyUrl = basePath + WAP_NOTIFY_URL;
+            String notifyUrl = basePath + WAP_NOTIFY_URL_201611;
             String returnUrl = basePath + WAP_RETURN_URL;
 //            String merchant_url = tradeRecord.getMerchantUrl() + "?payStates=01";
 //            String seller_email = ConfigUtil.getProperty(tenantId,
@@ -541,7 +541,8 @@ public class AlipayController extends TradeBaseController {
         } 
     }
     
-    private void assembleCommonParam(Map<String, String> sParaTempToken) {
+    @SuppressWarnings("unused")
+	private void assembleCommonParam(Map<String, String> sParaTempToken) {
     	sParaTempToken.put("app_id", "2016110902676346");
     	sParaTempToken.put("method", "alipay.trade.wap.pay.return");
     	sParaTempToken.put("sign_type", "RSA");
@@ -580,9 +581,8 @@ public class AlipayController extends TradeBaseController {
                 payStates = PayConstants.ReturnCode.SUCCESS;
             }
             
-//            String[] orderInfoArray = this.splitTradeOrderId(out_trade_no);
-            String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
-            String orderId = out_trade_no;//orderInfoArray[1]; 
+            String tenantId = out_trade_no.split("_")[0];  
+            String orderId = out_trade_no.split("_")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOG.error("支付宝wap前台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -656,6 +656,74 @@ public class AlipayController extends TradeBaseController {
                         
             String tenantId = ConfigFromFileUtil.getProperty("TENANT_ID");//orderInfoArray[0]; 
             String orderId = out_trade_no;//orderInfoArray[1]; 
+            TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
+            if(tradeRecord == null) {
+                LOG.error("支付宝wap后台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
+                throw new SystemException("支付宝wap后台通知出错，获取订单信息失败!");
+            }
+            String notifyUrl = tradeRecord.getNotifyUrl();
+            String orderAmount = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额 
+            String notifyIdDB = tradeRecord.getNotifyId();
+            subject = tradeRecord.getSubject();
+            
+            /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
+            if (!notify_id.equals(notifyIdDB) && tradeRecord.getStatus() != null
+                    && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
+                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                        trade_no, notify_id, buyer_email, null, seller_email);
+                
+                /* 5.异步通知业务系统订单支付状态 */
+                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
+                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
+            }
+            
+            response.getWriter().write("success"); // 支付宝接收不到“success” 就会在24小时内重复调用多次
+        } catch(IOException ex) {
+            LOG.error("支付宝wap后台通知失败", ex);
+        } catch(Exception ex) {
+            LOG.error("支付宝wap后台通知失败", ex);
+        }   
+    }
+    
+    @RequestMapping(value = "/wapNotify201611")
+    public void wapNotify201611(HttpServletRequest request, HttpServletResponse response) {
+        LOG.debug("支付宝wap后台通知...");
+        try {
+            request.setCharacterEncoding("utf-8");
+            response.setContentType("text/html;charset=utf-8");
+            /* 1.获取支付宝传递过来的参数 */
+//            String notify_data = request.getParameter("notify_data");// 商品名称
+//            Map<String, String> eleMap = XMLUtil.readStringXmlOut(notify_data);
+//            if (notify_data == null || notify_data.length() == 0 || eleMap == null
+//                    || eleMap.size() == 0) {
+//                LOG.error("支付宝WAP后台通知失败，获取支付宝参数失败，参数：[" + notify_data + "]");
+//                throw new SystemException("支付宝wap支付后台通知失败，获取支付宝后台通知参数失败");
+//            }
+            String subject = request.getParameter("subject");// 商品名称
+            String trade_no = request.getParameter("trade_no"); // 支付宝交易号
+            String buyer_email = request.getParameter("buyer_logon_id");// 买家支付宝账号
+            String out_trade_no = request.getParameter("out_trade_no");// 商户网站唯一订单号
+            @SuppressWarnings("unused")
+			String notify_time = request.getParameter("notify_time");// 通知时间
+            String trade_status = request.getParameter("trade_status");//
+            String seller_email = request.getParameter("seller_email");// 卖家支付宝账号
+            String notify_id = request.getParameter("notify_id");// 通知校验ID
+                                                       // 通知校验ID。唯一识别通知内容。重发相同内容的通知时，该值不变。(如果已经成功，则统一个id不处理)
+            LOG.info("支付宝WAP后台通知参数：trade_no[" + trade_no + "];;out_trade_no[" + out_trade_no + "];");
+            /* 2.解析返回状态 */
+            String payStates = PayConstants.ReturnCode.FAILD;
+            // 支付成功的两个状态
+            if (PayConstants.AliPayReturnCode.TRADE_FINISHED.equals(trade_status)
+                    || PayConstants.AliPayReturnCode.TRADE_SUCCESS.equals(trade_status)) {
+                payStates = PayConstants.ReturnCode.SUCCESS;
+            }
+            /* 3.如果成功，更新支付流水并回调请求端，否则什么也不做 */
+            if (!PayConstants.ReturnCode.SUCCESS.equals(payStates)) {
+                return;
+            }
+                        
+            String tenantId = out_trade_no.split("_")[0]; 
+            String orderId = out_trade_no.split("_")[1];
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOG.error("支付宝wap后台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -1231,7 +1299,8 @@ public class AlipayController extends TradeBaseController {
      * @author LiangMeng
      * @ApiDocMethod
      */
-    private String signForApp(Map<String, String> sParaTemp ){
+    @SuppressWarnings("unused")
+	private String signForApp(Map<String, String> sParaTemp ){
         return null;
     }
 }
