@@ -104,6 +104,8 @@ dependencies {
     //junit
     compile "junit:junit:4.12"
     compile fileTree(dir:'lib',include:'**/*.jar')
+	// 支付宝
+	compile "alipay:alipay-sdk:1.5"
 }
 
 processResources {
