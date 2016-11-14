@@ -280,6 +280,10 @@ public class PayController extends TradeBaseController {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "订单金额不能为空");
         }
         
+        if (StringUtil.isBlank(paymentReqParam.getCurrencyUnit())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "币种不能为空");
+        }
+        
         if(!paymentReqParam.getOrderAmount().matches("^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){1,2})?$")) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_WRONG, errMsg + "订单金额格式有误");
         }
