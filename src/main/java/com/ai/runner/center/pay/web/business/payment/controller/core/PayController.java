@@ -58,17 +58,17 @@ public class PayController extends TradeBaseController {
         String subject = paymentReqParam.getSubject();
         String requestSource = paymentReqParam.getRequestSource();
         String returnUrl = paymentReqParam.getReturnUrl();
-        String partnerId = "";//this.getPartnerId(tenantId);
+        String partnerId = "";
         String serverType =  ConfigUtil.getProperty(PayConstants.SERVER_TYPE);
         if("ISTEST".equals(serverType)){
             orderAmount = "0.01";
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
-                partnerId);
+                partnerId, paymentReqParam.getCurrencyUnit());
     	String payOrgCode = paymentReqParam.getPayOrgCode();
     	TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
-        if(tradeRecord == null) {
+        if (tradeRecord == null) {
             LOG.error("发起支付时查询不到此订单支付请求数据： 租户标识： " + tenantId + " ，订单号： " + orderId);
             throw new SystemException("发起支付时查询订单信息异常!");
         }
@@ -94,19 +94,23 @@ public class PayController extends TradeBaseController {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "终端来源不能为空");
         }
         
-        if(StringUtil.isBlank(paymentReqParam.getOrderAmount())) {
+        if (StringUtil.isBlank(paymentReqParam.getOrderAmount())) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "订单金额不能为空");
         }
         
-        if(!paymentReqParam.getOrderAmount().matches("^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){1,2})?$")) {
+        if (!paymentReqParam.getOrderAmount().matches("^(([1-9]{1}\\d*)|([0]{1}))(\\.(\\d){1,2})?$")) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_WRONG, errMsg + "订单金额格式有误");
         }
         
-        if(StringUtil.isBlank(paymentReqParam.getReturnUrl())) {
+        if (StringUtil.isBlank(paymentReqParam.getCurrencyUnit())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "币种不能为空");
+        }
+        
+        if (StringUtil.isBlank(paymentReqParam.getReturnUrl())) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "页面跳转同步通知地址不能为空");
         }
         
-        if(StringUtil.isBlank(paymentReqParam.getNotifyUrl())) {
+        if (StringUtil.isBlank(paymentReqParam.getNotifyUrl())) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "服务器异步通知页面路径不能为空");
         }
         
@@ -121,11 +125,14 @@ public class PayController extends TradeBaseController {
                 + paymentReqParam.getNotifyUrl() + VerifyUtil.SEPARATOR
                 + tenantId;
         String key = ConfigUtil.getTenantCommonProperty(tenantId, PayConstants.REQUEST_KEY);
-        if(!"0".equals(paymentReqParam.getCheckFlag())){
+        if (!"0".equals(paymentReqParam.getCheckFlag())) {
             if(!VerifyUtil.checkParam(infoStr, paymentReqParam.getInfoMd5(), key)) {
                 LOG.error("验签失败：传入的参数已被篡改！" + infoStr);
                 throw new BusinessException(ExceptCodeConstants.ILLEGAL_PARAM, "传入的支付请求参数非法,参数有误或已被篡改！");
             }
+        }
+        if (StringUtil.isBlank(paymentReqParam.getPayOrgCode())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "支付机构不能为空");
         }
     }
 
@@ -152,7 +159,7 @@ public class PayController extends TradeBaseController {
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
-                partnerId);
+                partnerId, paymentReqParam.getCurrencyUnit());
         /* 3.根据调用端信息，查询支持哪种支付方式 */
         List<TerminalOrgRelVo> terminalOrgRelList = this.getTerminalOrgRelVos(tenantId, requestSource);
         /**

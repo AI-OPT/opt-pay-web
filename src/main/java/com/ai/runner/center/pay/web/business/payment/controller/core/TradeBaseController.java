@@ -65,17 +65,18 @@ public class TradeBaseController extends BaseController {
      * @return
      * @throws BusinessException
      * @author fanpw
+     * @param currencyUnit 
      * @ApiDocMethod
      * @ApiCode
      */
     protected void createPaymentInfo(String tenantId, String orderId, String orderAmount,
             String subject, String requestSource, String notifyUrl,
-            String merchantUrl, String returnUrl, String partnerId) throws BusinessException {
+            String merchantUrl, String returnUrl, String partnerId, String currencyUnit) throws BusinessException {
         TradeRecord tradeRecord = queryTradeRecord(tenantId, orderId);
         // 如果支付记录未创建，则新增支付流水记录
         if(tradeRecord == null) {
             this.createPaymentRecord(tenantId, " ", orderId, orderAmount, subject, requestSource,
-                    notifyUrl, merchantUrl, returnUrl, partnerId); 
+                    notifyUrl, merchantUrl, returnUrl, partnerId, currencyUnit); 
             LOG.info("成功创建订单[" + orderId + "]支付流水记录！");
             return;
         }
@@ -100,12 +101,13 @@ public class TradeBaseController extends BaseController {
      * @param returnUrl
      * @return
      * @author fanpw
+     * @param currencyUnit 
      * @ApiDocMethod
      * @ApiCode
      */
     protected long createPaymentRecord(String tenantId, String payOrgId, String orderId,
             String orderAmount, String subject, String requestSource, String notifyUrl,
-            String merchantUrl, String returnUrl, String partnerId) {
+            String merchantUrl, String returnUrl, String partnerId, String currencyUnit) {
         TradeReq req = new TradeReq();
         req.setTenantId(tenantId);
         req.setOrderId(orderId);
@@ -119,6 +121,7 @@ public class TradeBaseController extends BaseController {
         req.setPayOrgId(payOrgId);
         req.setRequestSource(requestSource);
         req.setPayRequestType(PayConstants.PayRequestType.PAY);
+        req.setCurrencyUnit(currencyUnit);
         return payCenterSV.createTradeRecord(req);
     }
     

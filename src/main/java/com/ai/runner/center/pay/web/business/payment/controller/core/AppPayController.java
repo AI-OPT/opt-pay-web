@@ -73,7 +73,7 @@ public class AppPayController extends TradeBaseController {
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
-                partnerId);
+                partnerId, paymentReqParam.getCurrencyUnit());
         this.doAppPay(request, response, tenantId, orderId, payOrgCode, requestSource);
     }
 
@@ -141,6 +141,10 @@ public class AppPayController extends TradeBaseController {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "订单金额不能为空");
         }
 
+        if (StringUtil.isBlank(paymentReqParam.getCurrencyUnit())) {
+            throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "币种不能为空");
+        }
+        
         if (StringUtil.isBlank(paymentReqParam.getPayOrgCode())) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "支付机构编码不能为空");
         }

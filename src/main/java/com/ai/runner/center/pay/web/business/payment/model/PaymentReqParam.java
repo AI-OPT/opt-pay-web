@@ -43,6 +43,11 @@ public class PaymentReqParam implements Serializable {
     private String orderAmount;
 
     /**
+     * 币种,1、RMB；2、$;
+     */
+    private String currencyUnit;
+    
+    /**
      * 服务器异步通知页面路径
      */
     private String notifyUrl;
@@ -155,5 +160,13 @@ public class PaymentReqParam implements Serializable {
     public void setInfoMd5(String infoMd5) {
         this.infoMd5 = infoMd5;
     }
+
+	public String getCurrencyUnit() {
+		return currencyUnit;
+	}
+
+	public void setCurrencyUnit(String currencyUnit) {
+		this.currencyUnit = currencyUnit;
+	}
     
 }
