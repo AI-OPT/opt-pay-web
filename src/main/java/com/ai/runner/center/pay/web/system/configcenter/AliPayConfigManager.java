@@ -1,6 +1,7 @@
 package com.ai.runner.center.pay.web.system.configcenter;
 
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
+import com.ai.runner.center.pay.web.system.util.ConfigUtil;
 
 /**
  * 支付宝支付配置管理类
@@ -123,6 +124,14 @@ public class AliPayConfigManager extends AbstractPayConfigManager {
      */
     public static final String ALIPAY_GATEWAY_NEW_WAP = "http://wappaygw.alipay.com/service/rest.htm?";
 
+    private static final String WAP_PAY_URL = "WAP_PAY_URL";
+
+    private static final String APP_ID = "APP_ID";
+
+    private static final String APP_PRIVATE_KEY = "APP_PRIVATE_KEY";
+
+    private static final String ALIPAY_PUBLIC_KEY = "ALIPAY_PUBLIC_KEY";
+
     /**
      * 根据支付请求端获取对应的支付宝支付地址
      */
@@ -167,6 +176,27 @@ public class AliPayConfigManager extends AbstractPayConfigManager {
     @Override
     public String getBatchRefundActionUrl(String requestSource) {
         return ZFB_BATCH_NOPWD_REFUND_ACTION;
+    }
+
+    public static String getWapPayUrl() {
+        return ConfigUtil.getProperty(PAY_ORG_NAME, WAP_PAY_URL);
+    }
+
+    public static String getAppId(String tenantId) {
+        return ConfigUtil.getProperty(tenantId, PAY_ORG_NAME, APP_ID);
+    }
+
+    public static String getAppPrivateKey(String tenantId) {
+        return ConfigUtil.getProperty(tenantId, PAY_ORG_NAME, APP_PRIVATE_KEY);
+    }
+
+    public static String getAlipayPublicKey(String tenantId) {
+        return ConfigUtil.getProperty(tenantId, PAY_ORG_NAME, ALIPAY_PUBLIC_KEY);
+    }
+
+    public static String getWapSellerId(String tenantId) {
+        return ConfigUtil.getProperty(tenantId, AliPayConfigManager.PAY_ORG_NAME,
+                WAP_SELLER_PID);
     }
 
 }
