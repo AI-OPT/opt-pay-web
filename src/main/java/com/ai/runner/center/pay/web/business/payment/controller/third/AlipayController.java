@@ -468,6 +468,7 @@ public class AlipayController extends TradeBaseController {
             alipayRequest.setNotifyUrl(notifyUrl);
             // 填充业务参数
             alipayRequest.setBizContent(JSON.toJSONString(sParaTemp));
+            LOG.info("支付宝wap支付请求参数:" + JSON.toJSONString(alipayRequest));
             // 调用SDK生成表单
             String form = alipayClient.pageExecute(alipayRequest).getBody(); 
             LOG.info("alipay for wap return form: " + form);
