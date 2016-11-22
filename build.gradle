@@ -47,6 +47,7 @@ configurations.all {
 	
 
 dependencies {
+    compile fileTree(dir:'lib',include:'**/*.jar')
     //基础包
     compile 'org.springframework:spring-core:4.1.7.RELEASE'
     compile 'org.springframework:spring-beans:4.1.7.RELEASE'
@@ -77,6 +78,7 @@ dependencies {
     compile 'commons-httpclient:commons-httpclient:3.1'
     compile 'commons-logging:commons-logging:1.1.3'
     compile 'jaxen:jaxen:1.1.6'
+    compile "alipay:alipay-sdk:1.5"
     
     //中国银联
     //compile 'fakepath:upacp_sdk:1.0.1'
@@ -103,9 +105,7 @@ dependencies {
 	compile 'com.ai.opt.sso.client:opt-sso-client:1.0.2-SNAPSHOT'
     //junit
     compile "junit:junit:4.12"
-    compile fileTree(dir:'lib',include:'**/*.jar')
-	// 支付宝
-	compile "alipay:alipay-sdk:1.5"
+	
 }
 
 processResources {

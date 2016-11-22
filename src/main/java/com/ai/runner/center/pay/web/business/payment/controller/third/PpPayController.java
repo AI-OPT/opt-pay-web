@@ -84,17 +84,13 @@ public class PpPayController extends TradeBaseController {
             }
             String total_fee = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额      
             
-            //把请求参数打包成数组
+            //把请求参数打包成
             Map<String, String> sParaTemp = new HashMap<String, String>();
             sParaTemp.put("charset", "utf-8");
             sParaTemp.put("rm", "2");
             sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
-//            sParaTemp.put("callback_url", "callback_url");
-//            sParaTemp.put("cancel_return ", "cancel_return");
-//            sParaTemp.put("shopping_url ", "shopping_url");
             sParaTemp.put("notify_url ", notify_url);
-//            sParaTemp.put("return", "http://10.19.13.24:14110/opt-pay/paypal/webReturn");
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
@@ -167,8 +163,7 @@ public class PpPayController extends TradeBaseController {
         	String result = HttpClientUtil.sendPost(PpPayConfigManager.getIpnUrl(), str); 
         	LOGGER.info("paypal支付确认结果result="+result);
         	
-            request.setCharacterEncoding("utf-8");
-            response.setContentType("text/html;charset=utf-8");
+            request.setCharacterEncoding(request.getParameter("charset"));
             /* 1.获取paypal传递过来的参数 */
             String subject = request.getParameter("subject");// 商品名称
             String trade_no = request.getParameter("trade_no"); // paypal交易号
@@ -218,7 +213,6 @@ public class PpPayController extends TradeBaseController {
                         trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.PP);
             }
             
-            response.getWriter().write("success"); 
         } catch(IOException ex) {
             LOGGER.error("paypalWEB后台通知失败", ex);
         } catch(Exception ex) {

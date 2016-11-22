@@ -153,11 +153,7 @@ public class CertUtil {
 			LogUtil.writeLog("WARN: acpsdk.encryptTrackCert.path is empty");
 		}
 	}
-	/**
-	 * 
-	 * @param path
-	 * @return
-	 */
+	
 	private static X509Certificate initCert(String path) {
 		X509Certificate encryptCertTemp = null;
 		CertificateFactory cf = null;
