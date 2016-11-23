@@ -86,7 +86,7 @@ public class PpPayController extends TradeBaseController {
             
             //把请求参数打包成
             Map<String, String> sParaTemp = new HashMap<String, String>();
-//            sParaTemp.put("charset", "utf-8");
+            sParaTemp.put("charset", "gbk");
             sParaTemp.put("rm", "2");
             sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
