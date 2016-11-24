@@ -3,6 +3,7 @@ package com.ai.runner.center.pay.web.business.payment.controller.third;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class PpPayController extends TradeBaseController {
             sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
             sParaTemp.put("notify_url ", notify_url);
-            sParaTemp.put("item_name", new String(subject.getBytes("utf-8"), "gb2312"));
+            sParaTemp.put("item_name", Charset.forName("gb2312").decode(Charset.forName("gb2312").encode(subject)).toString());
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
             sParaTemp.put("business", PpPayConfigManager.getMerchantAccountId(tenantId));
