@@ -2,6 +2,7 @@ package com.ai.runner.center.pay.web.business.payment.controller.third;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -28,12 +29,12 @@ import com.ai.runner.center.pay.web.business.payment.util.core.PaymentNotifyUtil
 import com.ai.runner.center.pay.web.business.payment.util.core.VerifyUtil;
 import com.ai.runner.center.pay.web.business.payment.util.third.alipay.AlipayCore;
 import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager;
-import com.ai.runner.center.pay.web.system.configcenter.AliPayConfigManager;
 import com.ai.runner.center.pay.web.system.configcenter.PpPayConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
-import com.ai.runner.center.pay.web.system.util.MD5;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 @Controller
 @RequestMapping(value = "/paypal")
 public class PpPayController extends TradeBaseController {
@@ -136,34 +137,14 @@ public class PpPayController extends TradeBaseController {
         return AlipayCore.paraFilter(sParaTemp);
     }
 	
-	public static String buildRequestMysign(String key, Map<String, String> sPara) {
-    	String prestr = AlipayCore.createLinkString(sPara); //把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-        String mysign = "";
-        if("MD5".equals(AliPayConfigManager.SIGN_TYPE) ) {
-        	mysign = MD5.sign(prestr, key, AliPayConfigManager.INPUT_CHARSET);
-        }
-        return mysign;
-    }
-	
 	@RequestMapping(value = "/webNotify")
     public void ppWebNotify(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("paypalWEB后台通知...");
         showParams(request);
         try {
-        	// 从 PayPal 出读取 POST 信息同时添加变量„cmd‟ 
-        	Enumeration<String> en = request.getParameterNames(); 
-        	String str = "cmd=_notify-validate"; 
-        	while (en.hasMoreElements()) { 
-        		String paramName = (String) en.nextElement(); 
-        		String paramValue = request.getParameter(paramName); 
-        		str = str + "&" +paramName + "=" + URLEncoder.encode(paramValue, request.getParameter("charset")); 
-        	} 
-        	LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str); 
-        	// 将信息 POST 回给 PayPal 进行验证    测试环境先省略这一步 //HTTPWEB是我自己的类 网上有很多HTTP请求的方法 
-        	String result = HttpClientUtil.sendPost(PpPayConfigManager.getIpnUrl(), str); 
-        	LOGGER.info("paypal支付确认结果result="+result);
+            request.setCharacterEncoding("utf-8");
+        	verifyAuthentication(request);
         	
-            request.setCharacterEncoding(request.getParameter("charset"));
             /* 1.获取paypal传递过来的参数 */
             String subject = request.getParameter("subject");// 商品名称
             String trade_no = request.getParameter("trade_no"); // paypal交易号
@@ -218,6 +199,26 @@ public class PpPayController extends TradeBaseController {
         } catch(Exception ex) {
             LOGGER.error("paypalWEB后台通知失败", ex);
         }    
+    }
+
+    private void verifyAuthentication(HttpServletRequest request)
+            throws UnsupportedEncodingException {
+        // 从 PayPal 出读取 POST 信息同时添加变量„cmd‟ 
+        Enumeration<String> en = request.getParameterNames(); 
+        String str = "cmd=_notify-validate"; 
+        while (en.hasMoreElements()) { 
+        	String paramName = (String) en.nextElement(); 
+        	String paramValue = request.getParameter(paramName); 
+        	str = str + "&" +paramName + "=" + URLEncoder.encode(paramValue, request.getParameter("charset")); 
+        } 
+        LOGGER.info("paypal支付请求验证参数，验证是否来自paypal消息：" + str); 
+        // 将信息 POST 回给 PayPal 进行验证    测试环境先省略这一步 //HTTPWEB是我自己的类 网上有很多HTTP请求的方法 
+        String result = HttpClientUtil.sendPost(PpPayConfigManager.getIpnUrl(), str); 
+        LOGGER.info("paypal支付确认结果result="+result);
+        JSONObject jsonObject = JSON.parseObject(result);
+        if (!"VERIFIED".equals(jsonObject.getString("data"))) {
+            throw new com.ai.opt.base.exception.BusinessException("authentication failed");
+        }
     }
 	
 	private void showParams(HttpServletRequest request) {  
