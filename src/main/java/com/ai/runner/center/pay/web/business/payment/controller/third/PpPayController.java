@@ -91,7 +91,7 @@ public class PpPayController extends TradeBaseController {
             sParaTemp.put("rm", "2");
             sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
-            sParaTemp.put("notify_url ", notify_url);
+            sParaTemp.put("notify_url", notify_url);
             sParaTemp.put("item_name", subject);
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
@@ -146,7 +146,7 @@ public class PpPayController extends TradeBaseController {
         	
         	request.setCharacterEncoding("utf-8");
             /* 1.获取paypal传递过来的参数 */
-            String subject = request.getParameter("subject");// 商品名称
+            String subject = request.getParameter("item_name");// 商品名称
             String trade_no = request.getParameter("trade_no"); // paypal交易号
             String buyer_email = request.getParameter("buyer_email");// 买家paypal账号
             String out_trade_no = request.getParameter("invoice");// 商户网站唯一订单号
@@ -217,7 +217,7 @@ public class PpPayController extends TradeBaseController {
         LOGGER.info("paypal支付确认结果result="+result);
         JSONObject jsonObject = JSON.parseObject(result);
         if (!"VERIFIED".equals(jsonObject.getString("data"))) {
-            throw new com.ai.opt.base.exception.BusinessException("authentication failed");
+//            throw new com.ai.opt.base.exception.BusinessException("authentication failed");
         }
     }
 	
