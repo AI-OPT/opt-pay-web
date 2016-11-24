@@ -86,12 +86,12 @@ public class PpPayController extends TradeBaseController {
             
             //把请求参数打包成
             Map<String, String> sParaTemp = new HashMap<String, String>();
-            sParaTemp.put("charset", "gbk");
+            sParaTemp.put("charset", "gb2312");
             sParaTemp.put("rm", "2");
             sParaTemp.put("invoice", tenantId + "#" + orderId);
             sParaTemp.put("return", returnUrl);
             sParaTemp.put("notify_url ", notify_url);
-            sParaTemp.put("item_name", subject);
+            sParaTemp.put("item_name", new String(subject.getBytes("utf-8"), "gb2312"));
             sParaTemp.put("amount", total_fee);
             sParaTemp.put("cmd", "_xclick");
             sParaTemp.put("business", PpPayConfigManager.getMerchantAccountId(tenantId));
