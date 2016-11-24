@@ -142,9 +142,9 @@ public class PpPayController extends TradeBaseController {
         LOGGER.info("paypalWEB后台通知...");
         showParams(request);
         try {
-            request.setCharacterEncoding("utf-8");
         	verifyAuthentication(request);
         	
+        	request.setCharacterEncoding("utf-8");
             /* 1.获取paypal传递过来的参数 */
             String subject = request.getParameter("subject");// 商品名称
             String trade_no = request.getParameter("trade_no"); // paypal交易号
