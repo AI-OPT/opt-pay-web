@@ -13,7 +13,7 @@ docker push 10.19.13.18:5000/opt-pay-web:v1.0
 3. 运行镜像
 #--net=host  表示为主机(host)模式  去掉该配置，默认为桥接(bridge)模式
 #-e 代表需要设置的环境变量
-docker run -d --name opt-pay-web-v1.0  -p 14145:8080  \
+docker run -d --name opt-pay-web  -p 14110:8080  \
 -e "casServerLoginUrl=http://10.19.13.19:14125/login"  \
 -e "casServerUrlPrefix=http://10.19.13.19:14125"   \
 -e "serverName=http://10.19.13.19:14145"   \
@@ -23,7 +23,7 @@ docker run -d --name opt-pay-web-v1.0  -p 14145:8080  \
 -e "casServerUrlPrefix_Inner=http://10.19.13.19:14125"   \
 -e "serverName_Inner=http://10.19.13.19:14145"   \
 -e "logOutServerUrl_Inner=http://10.19.13.19:14125/logout"   \
--e "logOutBackUrl_Inner=http://10.19.13.19:14125"   \ 
+-e "logOutBackUrl_Inner=http://10.19.13.19:14125"   \
 -e "innerDomains=changhong.com" \
 -e "SDK_MODE=0" \
 -e "PAAS_AUTH_URL=http://10.1.245.4:19811/service-portal-uac-web/service/auth" \
@@ -32,14 +32,14 @@ docker run -d --name opt-pay-web-v1.0  -p 14145:8080  \
 -e "PAAS_CCS_PWD=123456" \
 -e "REST_REGISTRY_ADDR=10.19.13.13:29181"  \
 -e "whitelist=changhong.com" \
-10.19.13.18:5000/opt-pay-web:v1.0
+10.19.13.18:5000/opt-pay-web:v1.0_1
 
 #查看镜像启动日志
-docker logs opt-pay-web-v1.0
+docker logs -f opt-pay-web
 #进入容器，查看镜像内部的情况
-docker exec -it opt-pay-web-v1.0 /bin/bash
+docker exec -it opt-pay-web /bin/bash
 #删除运行的容器
-docker rm -fv opt-pay-web-v1.0
+docker rm -fv opt-pay-web
 
 #=============更新日志========================#
 *2016-09-23
