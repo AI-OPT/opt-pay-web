@@ -3,9 +3,11 @@ package com.ai.runner.center.pay.web.business.payment.controller.third;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -182,6 +184,29 @@ public class AlipayController extends TradeBaseController {
             LOG.error("支付宝网页支付发生错误", ex);
             throw ex;
         } 
+    }
+    
+    private void showParams(HttpServletRequest request) {  
+        Map<String, String> map = new HashMap<String, String>();  
+        Enumeration<?> paramNames = request.getParameterNames();  
+        while (paramNames.hasMoreElements()) {  
+            String paramName = (String) paramNames.nextElement();  
+  
+            String[] paramValues = request.getParameterValues(paramName);  
+            if (paramValues.length == 1) {  
+                String paramValue = paramValues[0];  
+                if (paramValue.length() != 0) {  
+                    map.put(paramName, paramValue);  
+                }  
+            }  
+        }  
+  
+        Set<Map.Entry<String, String>> set = map.entrySet();  
+        LOG.info("------------------------------");  
+        for (Map.Entry<String, String> entry : set) {  
+            LOG.info(entry.getKey() + ":" + entry.getValue());  
+        }  
+        LOG.info("------------------------------");  
     }
     
     /**
@@ -501,7 +526,8 @@ public class AlipayController extends TradeBaseController {
     @RequestMapping(value = "/wapReturn")
     public void alipayWapReturn(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        LOG.debug("支付宝wap前台通知...");
+        LOG.info("支付宝wap前台通知...");
+        showParams(request);
         PrintWriter printWriter = null;
         try {
             request.setCharacterEncoding("utf-8");
