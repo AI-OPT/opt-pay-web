@@ -22,10 +22,10 @@
 	<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
 	<dubbo:application name="${default.dubbo.appname}" />
 	<dubbo:registry protocol="${default.dubbo.registry.protocol}"
-		address="${dubbo.registry.address}" />
+		address="${dubbo.registry.address}" file="${dubbo.registry.file}" />
 	<dubbo:protocol name="${default.dubbo.protocol}" port="${default.dubbo.protocol.port}" />
 	
-	<dubbo:consumer timeout="30000" />
+	<dubbo:consumer timeout="30000" check="false" />
 
 	<!-- 终端与支付机构的关系服务 -->
 	<dubbo:reference id="terminalOrgRelQuerySV"
