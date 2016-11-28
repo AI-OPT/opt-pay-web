@@ -540,10 +540,7 @@ public class AlipayController extends TradeBaseController {
             LOG.info("支付宝WAP支付前台通知开始:交易订单号[" + out_trade_no + "]");
             LOG.info("支付宝WAP支付前台通知开始:result[" + result + "]");
             
-            String payStates = PayConstants.ReturnCode.FAILD;
-            if (PayConstants.AliPayReturnCode.RETURN_URL_SUCCESS.equals(result)) {
-                payStates = PayConstants.ReturnCode.SUCCESS;
-            }
+            String payStates = PayConstants.ReturnCode.SUCCESS;
             
             String tenantId = out_trade_no.split("_")[0];  
             String orderId = out_trade_no.split("_")[1]; 
