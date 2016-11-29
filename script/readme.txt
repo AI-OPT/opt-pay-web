@@ -14,24 +14,22 @@ docker push 10.19.13.20:5000/opt-pay-web:v1.0
 #--net=host  表示为主机(host)模式  去掉该配置，默认为桥接(bridge)模式
 #-e 代表需要设置的环境变量
 docker run -d --name opt-pay-web  -p 14110:8080  \
--e "casServerLoginUrl=http://10.19.13.19:14125/login"  \
--e "casServerUrlPrefix=http://10.19.13.19:14125"   \
--e "serverName=http://10.19.13.19:14145"   \
--e "logOutServerUrl=http://10.19.13.19:14125/logout"   \
--e "logOutBackUrl=http://10.19.13.19:14125"   \
--e "casServerLoginUrl_Inner=http://10.19.13.19:14125/login"  \
--e "casServerUrlPrefix_Inner=http://10.19.13.19:14125"   \
--e "serverName_Inner=http://10.19.13.19:14145"   \
--e "logOutServerUrl_Inner=http://10.19.13.19:14125/logout"   \
--e "logOutBackUrl_Inner=http://10.19.13.19:14125"   \
--e "innerDomains=changhong.com" \
+# 0:ipaas模式；1:sdk模式
 -e "SDK_MODE=0" \
+#ipaas地址
 -e "PAAS_AUTH_URL=http://10.1.245.4:19811/service-portal-uac-web/service/auth" \
+#ipaas用户pid
 -e "PAAS_AUTH_PID=D14F7D708109471AB6F3084B2ABAE9A6" \
+#ipaas配置中心id
 -e "PAAS_CCS_ID=CCS004" \
+#ipaas配置中心密码
 -e "PAAS_CCS_PWD=123456" \
+#服务注册中心zk地址
 -e "REST_REGISTRY_ADDR=10.19.13.13:29181"  \
--e "whitelist=changhong.com" \
+#验签证书目录
+-e "VALIDATE_CERT_DIR=/assets/tst/" \
+#敏感信息加密证书路径
+-e "ENCRYPT_CERT_PATH=/certs/tst/acp_test_enc.cer" \
 10.19.13.20:5000/opt-pay-web:v1.0_2
 
 #查看镜像启动日志
