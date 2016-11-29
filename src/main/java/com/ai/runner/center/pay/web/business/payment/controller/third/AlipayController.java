@@ -570,11 +570,6 @@ public class AlipayController extends TradeBaseController {
     
     /**
      * 支付宝wap支付后台通知服务
-     * @param request
-     * @param response
-     * @author fanpw
-     * @ApiDocMethod
-     * @ApiCode
      */
     @RequestMapping(value = "/wapNotify")
     public void alipayWapNotify(HttpServletRequest request, HttpServletResponse response) {

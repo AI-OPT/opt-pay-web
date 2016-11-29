@@ -146,24 +146,30 @@ public class PpPayController extends TradeBaseController {
         	
         	request.setCharacterEncoding("utf-8");
             /* 1.获取paypal传递过来的参数 */
-            String subject = request.getParameter("item_name");// 商品名称
-            String trade_no = request.getParameter("trade_no"); // paypal交易号
+            String item_name = request.getParameter("item_name");// 商品名称
+            String txn_id = request.getParameter("txn_id"); // paypal交易号
             String buyer_email = request.getParameter("buyer_email");// 买家paypal账号
-            String out_trade_no = request.getParameter("invoice");// 商户网站唯一订单号
+            String invoice = request.getParameter("invoice");// 商户网站唯一订单号
             String notify_time = request.getParameter("notify_time");// 通知时间
-            String paymentStatus = request.getParameter("payment_status");//
+            String payment_status = request.getParameter("payment_status");//
             String seller_email = request.getParameter("seller_email");// 卖家paypal账号
             String notify_id = request.getParameter("ipn_track_id");// 通知校验ID
                                                                  // 通知校验ID。唯一识别通知内容。重发相同内容的通知时，该值不变。(如果已经成功，则统一个id不处理)
-            LOGGER.info("paypalWEB后台通知参数：subject[" + subject + "];trade_no[" + trade_no
-                    + "];buyer_email[" + buyer_email + "];out_trade_no[" + out_trade_no + "];"
-                    + "notify_time[" + notify_time + "];payment_status[" + paymentStatus
+            LOGGER.info("paypalWEB后台通知参数：item_name[" + item_name + "]; txn_id[" + txn_id
+                    + "];buyer_email[" + buyer_email + "]; invoice[" + invoice + "];"
+                    + "notify_time[" + notify_time + "];payment_status[" + payment_status
                     + "];seller_email[" + seller_email + "];notify_id[" + notify_id + "];");
             
+            String tenantId = invoice.split("#")[0]; 
+            String orderId = invoice.split("#")[1]; 
+            /* Check that the payment_status is Completed.
+            If the payment_status is Completed, check the txn_id against the previous PayPal transaction that you processed to ensure the IPN message is not a duplicate.
+            Check that the receiver_email is an email address registered in your PayPal account.
+            Check that the price (carried in mc_gross) and the currency (carried in mc_currency) are correct for the item (carried in item_name or item_number). */
             /* 2.解析返回状态 */
             String payStates = PayConstants.ReturnCode.FAILD;
             // 支付成功的两个状态
-            if (PayConstants.PAYPAL_TRANSACTION_COMPLETED.equals(paymentStatus)) {
+            if (PayConstants.PAYPAL_TRANSACTION_COMPLETED.equals(payment_status)) {
                 payStates = PayConstants.ReturnCode.SUCCESS;
             }
             /* 3.如果成功，更新支付流水并回调请求端，否则什么也不做 */
@@ -171,8 +177,6 @@ public class PpPayController extends TradeBaseController {
                 return;
             } 
             
-            String tenantId = out_trade_no.split("#")[0]; 
-            String orderId = out_trade_no.split("#")[1]; 
             TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
             if(tradeRecord == null) {
                 LOGGER.error("paypalWEB后台通知出错，获取订单信息失败： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -181,17 +185,17 @@ public class PpPayController extends TradeBaseController {
             String notifyUrl = tradeRecord.getNotifyUrl();
             String orderAmount = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额 
             String notifyIdDB = tradeRecord.getNotifyId();
-            subject = tradeRecord.getSubject();
+            item_name = tradeRecord.getSubject();
             
             /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
             if (!notify_id.equals(notifyIdDB) && tradeRecord.getStatus() != null
                     && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
                 this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                        trade_no, notify_id, buyer_email, null, seller_email);
+                        txn_id, notify_id, buyer_email, null, seller_email);
                 
                 /* 5.异步通知业务系统订单支付状态 */
                 PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.PP);
+                        txn_id, item_name, orderAmount, payStates, PayConstants.PayOrgCode.PP);
             }
             
         } catch(IOException ex) {
@@ -237,9 +241,10 @@ public class PpPayController extends TradeBaseController {
         }  
   
         Set<Map.Entry<String, String>> set = map.entrySet();  
-        LOGGER.info("------------------------------");  
+        LOGGER.info("------------------------------");
+        LOGGER.info(map.toString());  
         for (Map.Entry<String, String> entry : set) {  
-            System.out.println(entry.getKey() + ":" + entry.getValue());  
+            LOGGER.info(entry.getKey() + ":" + entry.getValue());  
         }  
         LOGGER.info("------------------------------");  
     }
