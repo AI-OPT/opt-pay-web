@@ -3,7 +3,7 @@
 APP_NAME="opt.pay.web"
 
 #set base home
-RESOURCES_HOME=${CATALINA_HOME}/webapps/ROOT/WEB-INF/classes
+RESOURCES_HOME=${CATALINA_HOME}/webapps/opt-pay/WEB-INF/classes
 
 #change config
 pushd ${RESOURCES_HOME}
