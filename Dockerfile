@@ -1,13 +1,13 @@
 # Pull base image
-FROM 10.19.13.18:5000/tomcat:7-GMT
+FROM 10.19.13.36:5000/tomcat:7.x-GMT
 MAINTAINER mayt<mayt@asiainfo.com>
 
 # Install tomcat7
-RUN rm -rf /opt/apache-tomcat-7.0.72/webapps/* && mkdir /opt/apache-tomcat-7.0.72/webapps/ROOT
+RUN rm -rf /opt/tomcat/webapps/* && mkdir /opt/tomcat/webapps/ROOT
 
 # 如门户的为portal-web.war
-COPY ./build/libs/opt-pay.war /opt/apache-tomcat-7.0.72/webapps/opt-pay/opt-pay.war
-RUN cd /opt/apache-tomcat-7.0.72/webapps/opt-pay && jar -xf opt-pay.war && rm -rf /opt/apache-tomcat-7.0.72/webapps/opt-pay/opt-pay.war
+COPY ./build/libs/opt-pay.war /opt/tomcat/webapps/opt-pay/opt-pay.war
+RUN cd /opt/tomcat/webapps/opt-pay && jar -xf opt-pay.war && rm -rf /opt/tomcat/webapps/opt-pay/opt-pay.war
 
 ADD ./script/start-web.sh /start-web.sh
 RUN chmod 755 /*.sh
