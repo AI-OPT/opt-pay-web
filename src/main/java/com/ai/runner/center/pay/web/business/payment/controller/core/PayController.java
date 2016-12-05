@@ -60,7 +60,8 @@ public class PayController extends TradeBaseController {
         String returnUrl = paymentReqParam.getReturnUrl();
         String partnerId = "";
         String serverType =  ConfigUtil.getProperty(PayConstants.SERVER_TYPE);
-        if("ISTEST".equals(serverType)){
+        LOG.info("接收到业务系统支付请求, orderId = " + orderId + ", subject = " + subject);
+        if ("ISTEST".equals(serverType)) {
             orderAmount = "0.01";
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
