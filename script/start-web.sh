@@ -31,7 +31,7 @@ sed -i "s%ccs.appname=.*%ccs.appname=${CCS_NAME}%g" ./paas/paas-conf.properties
 sed -i "s%ccs.zk_address=.*%ccs.zk_address=${ZK_ADDR}%g" ./paas/paas-conf.properties
 
 # 各中心要根据情况自己修改成与dubbo.properties中对应的配置项
-sed -i "s%dubbo.registry.address=.*%dubbo.registry.address=${REST_REGISTRY_ADDR}%g" ./dubbo.properties
+sed -i "s%dubbo.registry.address=.*%dubbo.registry.address=${REST_REGISTRY_ADDR}%g" ./dubbo/dubbo.properties
 #替换证书目录
 sed -i "s%acpsdk.validateCert.dir=.*%acpsdk.validateCert.dir=${VALIDATE_CERT_DIR}%g" ./acp_sdk.properties
 sed -i "s%acpsdk.encryptCert.path=.*%acpsdk.encryptCert.path=${ENCRYPT_CERT_PATH}%g" ./acp_sdk.properties
