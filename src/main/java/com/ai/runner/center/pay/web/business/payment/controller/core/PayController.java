@@ -49,7 +49,7 @@ public class PayController extends TradeBaseController {
     @RequestMapping(value = "/gotoPayByOrg", method = RequestMethod.POST)
     public ModelAndView gotoPayNew(HttpServletRequest request, HttpServletResponse response,
             PaymentReqParam paymentReqParam) throws Exception {
-        request.setCharacterEncoding("utf-8");
+//        request.setCharacterEncoding("utf-8");
     	/* 参数校验 */
     	this.checkGotoPayByOrgParam(paymentReqParam);
     	/* 2.沉淀支付交易记录   */
