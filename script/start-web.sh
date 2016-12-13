@@ -1,6 +1,6 @@
 #!/bin/sh
 #env
-APP_NAME="opt.pay.web"
+APP_NAME="opt-pay-web"
 
 #set base home
 RESOURCES_HOME=${CATALINA_HOME}/webapps/opt-pay/WEB-INF/classes

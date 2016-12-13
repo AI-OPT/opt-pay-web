@@ -49,7 +49,7 @@ public class PayController extends TradeBaseController {
     @RequestMapping(value = "/gotoPayByOrg", method = RequestMethod.POST)
     public ModelAndView gotoPayNew(HttpServletRequest request, HttpServletResponse response,
             PaymentReqParam paymentReqParam) throws Exception {
-//        request.setCharacterEncoding("utf-8");
+        LOG.info("直连支付机构，接收到业务系统请求参数： " + JSON.toJSONString(paymentReqParam));
     	/* 参数校验 */
     	this.checkGotoPayByOrgParam(paymentReqParam);
     	/* 2.沉淀支付交易记录   */
@@ -61,7 +61,6 @@ public class PayController extends TradeBaseController {
         String returnUrl = paymentReqParam.getReturnUrl();
         String partnerId = "";
         String serverType =  ConfigUtil.getProperty(PayConstants.SERVER_TYPE);
-        LOG.info("接收到业务系统支付请求, orderId = " + orderId + ", subject = " + subject);
         if ("ISTEST".equals(serverType)) {
             orderAmount = "0.01";
         }

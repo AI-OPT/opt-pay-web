@@ -28,7 +28,7 @@ docker push 10.19.13.20:5000/opt-pay-web:v1.0
 #敏感信息加密证书路径
 -e "ENCRYPT_CERT_PATH=/assets/tst/acp_test_enc.cer" \
 
-docker run -d --name opt-pay-web  -p 14110:8080  \
+docker run -it --name opt-pay-web  -p 14110:8080  \
 -e "SDK_MODE=0" \
 -e "PAAS_AUTH_URL=http://10.1.245.4:19811/service-portal-uac-web/service/auth" \
 -e "PAAS_AUTH_PID=D14F7D708109471AB6F3084B2ABAE9A6" \
@@ -37,7 +37,7 @@ docker run -d --name opt-pay-web  -p 14110:8080  \
 -e "REST_REGISTRY_ADDR=10.19.13.13:29181"  \
 -e "VALIDATE_CERT_DIR=/assets/tst/" \
 -e "ENCRYPT_CERT_PATH=/assets/tst/acp_test_enc.cer" \
-10.19.13.36:5000/yc/opt-pay-web:v1.0_6
+10.19.13.36:5000/yc/opt-pay-web:v1.0_9
 
 #查看镜像启动日志
 docker logs -f opt-pay-web
