@@ -75,8 +75,8 @@ public final class PaymentNotifyUtil {
                 subject, orderAmount, payStates, payType);
         LOG.debug("第三方业务系统异步通知接收地址： " + notifyUrl);
         LOG.info("支付平台后台通知第三方业务系统发送报文： " + params);
-//        String returnStr = HTTPUtil.httpRequest(notifyUrl, params,"POST");
-        String returnStr = HttpClientUtil.sendPost(notifyUrl, JSON.toJSONString(params));
+        String returnStr = HTTPUtil.httpRequest(notifyUrl, params,"POST");
+//        String returnStr = HttpClientUtil.sendPost(notifyUrl, JSON.toJSONString(params));
         LOG.info("后台通知成功，接收到的返回报文： " + returnStr);
     }
     
