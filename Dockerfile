@@ -1,5 +1,5 @@
 # Pull base image
-FROM 10.19.13.36:5000/tomcat:7.x-GMT
+FROM 10.19.13.36:5000/tomcat:8.x-GMT
 MAINTAINER mayt<mayt@asiainfo.com>
 
 # Install tomcat7
