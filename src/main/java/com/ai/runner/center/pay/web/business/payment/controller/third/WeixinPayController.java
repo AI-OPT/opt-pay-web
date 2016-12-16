@@ -321,7 +321,7 @@ public class WeixinPayController extends TradeBaseController {
             /* 2.沉淀订单信息 */
             /* 先处理不存在的 * */
             this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
-                    notifyUrl, merchantUrl, returnUrl, partnerId, PayCenterConstants.CurrencyUnit.RMB);
+                    notifyUrl, merchantUrl, returnUrl, partnerId, PayCenterConstants.CurrencyUnit.RMB, "");
 
             LOG.info("微信支付微信端参数：" + "orderAmount:" + orderAmount + "orderId:" + orderId);
             String xml = this.initRequestInfo(request, tenantId, orderId,

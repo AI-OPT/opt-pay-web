@@ -66,12 +66,13 @@ public class TradeBaseController extends BaseController {
      * @throws BusinessException
      * @author fanpw
      * @param currencyUnit 
+     * @param payOrgId 
      * @ApiDocMethod
      * @ApiCode
      */
     protected void createPaymentInfo(String tenantId, String orderId, String orderAmount,
             String subject, String requestSource, String notifyUrl,
-            String merchantUrl, String returnUrl, String partnerId, String currencyUnit) throws BusinessException {
+            String merchantUrl, String returnUrl, String partnerId, String currencyUnit, String payOrgId) throws BusinessException {
         TradeRecord tradeRecord = queryTradeRecord(tenantId, orderId);
         // 如果支付记录未创建，则新增支付流水记录
         if(tradeRecord == null) {
@@ -82,12 +83,31 @@ public class TradeBaseController extends BaseController {
         }
         //校验此订单是否可以支付
         this.checkOrderCouldPay(tradeRecord);
-        //如果两次支付请求终端来源不一致，则更新此笔订单交易记录终端来源
-        if(!tradeRecord.getRequestSource().equals(requestSource)) {
-            this.modifyTradeRequestSource(tenantId, orderId, requestSource);
-        }
+        //更新此笔订单交易记录
+        this.modifyTrade(tenantId, orderId, orderAmount, subject, requestSource, notifyUrl, merchantUrl, returnUrl, partnerId, currencyUnit, payOrgId);
     }
         
+    private void modifyTrade(String tenantId, String orderId, String orderAmount, String subject,
+            String requestSource, String notifyUrl, String merchantUrl, String returnUrl,
+            String partnerId, String currencyUnit, String payOrgId) {
+        TradeModifyReq req = new TradeModifyReq();
+        req.setTenantId(tenantId);
+        req.setOrderId(orderId);
+        String tradeOrderId = this.buildTradeOrderId(partnerId, orderId);
+        req.setTradeOrderId(tradeOrderId);
+        req.setSubject(subject);
+        req.setPayAmount(AmountUtil.changeYuanToLi(Double.parseDouble(orderAmount)));
+        req.setNotifyUrl(notifyUrl);
+        req.setMerchantUrl(merchantUrl);
+        req.setReturnUrl(returnUrl);
+        req.setPayOrgId(payOrgId);
+        req.setRequestSource(requestSource);
+        req.setCurrencyUnit(currencyUnit);
+        this.payCenterSV.modifyTradeRecord(req);
+        LOG.info("成功修改该订单[" + orderId + "]交易状态");
+    }
+
+
     /**
      * 记录支付日志
      * @param tenantId

@@ -66,7 +66,7 @@ public class PayController extends TradeBaseController {
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
-                partnerId, paymentReqParam.getCurrencyUnit());
+                partnerId, paymentReqParam.getCurrencyUnit(), paymentReqParam.getPayOrgCode());
     	String payOrgCode = paymentReqParam.getPayOrgCode();
     	TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
         if (tradeRecord == null) {
@@ -160,7 +160,7 @@ public class PayController extends TradeBaseController {
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
-                partnerId, paymentReqParam.getCurrencyUnit());
+                partnerId, paymentReqParam.getCurrencyUnit(), "");
         /* 3.根据调用端信息，查询支持哪种支付方式 */
         List<TerminalOrgRelVo> terminalOrgRelList = this.getTerminalOrgRelVos(tenantId, requestSource);
         /**

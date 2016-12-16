@@ -73,7 +73,7 @@ public class AppPayController extends TradeBaseController {
         }
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
-                partnerId, paymentReqParam.getCurrencyUnit());
+                partnerId, paymentReqParam.getCurrencyUnit(), "");
         this.doAppPay(request, response, tenantId, orderId, payOrgCode, requestSource);
     }
 
