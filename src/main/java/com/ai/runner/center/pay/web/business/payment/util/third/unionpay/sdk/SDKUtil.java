@@ -30,9 +30,11 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SDKUtil {
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SDKUtil.class);
 	//默认配置的是UTF-8
 	public static String encoding_UTF8 = "UTF-8";
 	
@@ -56,8 +58,7 @@ public class SDKUtil {
 			if (StringUtils.isNotBlank(value)) {
 				// 对value值进行去除前后空处理
 				submitFromData.put(obj.getKey(), value.trim());
-				System.out
-						.println(obj.getKey() + "-->" + String.valueOf(value));
+				LOGGER.error(obj.getKey() + "-->" + String.valueOf(value));
 			}
 		}
 		
@@ -80,7 +81,7 @@ public class SDKUtil {
 			String certPwd,String encoding) {
 		Entry<String, String> obj = null;
 		Map<String, String> submitFromData = new HashMap<String, String>();
-		System.out.println("打印请求报文域 :");
+		LOGGER.info("打印请求报文域 :");
 		for (Iterator<?> it = contentData.entrySet().iterator(); it.hasNext();) {
 			obj = (Entry<String, String>) it.next();
 			String value = obj.getValue();
@@ -585,7 +586,7 @@ public class SDKUtil {
 	 * @return 加密后的字符串
 	 */
 	public static String encryptPin(String card, String pwd, String encoding) {
-		return SecureUtil.EncryptPin(pwd, card, encoding, CertUtil
+		return SecureUtil.encryptPin(pwd, card, encoding, CertUtil
 				.getEncryptCertPublicKey());
 	}
 	
@@ -599,7 +600,7 @@ public class SDKUtil {
 	 * @return 加密后的数据
 	 */
 	public static String encryptCvn2(String cvn2, String encoding) {
-		return SecureUtil.EncryptData(cvn2, encoding, CertUtil
+		return SecureUtil.encryptData(cvn2, encoding, CertUtil
 				.getEncryptCertPublicKey());
 	}
 
@@ -613,7 +614,7 @@ public class SDKUtil {
 	 * @return 解密后的数据
 	 */
 	public static String decryptCvn2(String base64cvn2, String encoding) {
-		return SecureUtil.DecryptedData(base64cvn2, encoding, CertUtil
+		return SecureUtil.decryptedData(base64cvn2, encoding, CertUtil
 				.getSignCertPrivateKey());
 	}
 
@@ -627,7 +628,7 @@ public class SDKUtil {
 	 * @return 加密后的数据
 	 */
 	public static String encryptAvailable(String date, String encoding) {
-		return SecureUtil.EncryptData(date, encoding, CertUtil
+		return SecureUtil.encryptData(date, encoding, CertUtil
 				.getEncryptCertPublicKey());
 	}
 
@@ -641,7 +642,7 @@ public class SDKUtil {
 	 * @return 加密后的数据
 	 */
 	public static String decryptAvailable(String base64Date, String encoding) {
-		return SecureUtil.DecryptedData(base64Date, encoding, CertUtil
+		return SecureUtil.decryptedData(base64Date, encoding, CertUtil
 				.getSignCertPrivateKey());
 	}
 
@@ -655,7 +656,7 @@ public class SDKUtil {
 	 * @return 加密后的卡号值
 	 */
 	public static String encryptPan(String pan, String encoding) {
-		return SecureUtil.EncryptData(pan, encoding, CertUtil
+		return SecureUtil.encryptData(pan, encoding, CertUtil
 				.getEncryptCertPublicKey());
 	}
 
@@ -668,7 +669,7 @@ public class SDKUtil {
 	 * @return
 	 */
 	public static String decryptPan(String base64Pan, String encoding) {
-		return SecureUtil.DecryptedData(base64Pan, encoding, CertUtil
+		return SecureUtil.decryptedData(base64Pan, encoding, CertUtil
 				.getSignCertPrivateKey());
 	}
 	
@@ -683,7 +684,7 @@ public class SDKUtil {
 	 * @return 加密后的数据
 	 */
 	public static String encryptEpInfo(String encryptedInfo, String encoding) {
-		return SecureUtil.EncryptData(encryptedInfo, encoding, CertUtil
+		return SecureUtil.encryptData(encryptedInfo, encoding, CertUtil
 				.getEncryptCertPublicKey());
 	}
 
@@ -697,7 +698,7 @@ public class SDKUtil {
 	 * @return 加密后的数据
 	 */
 	public static String decryptEpInfo(String base64EncryptedInfo, String encoding) {
-		return SecureUtil.DecryptedData(base64EncryptedInfo, encoding, CertUtil
+		return SecureUtil.decryptedData(base64EncryptedInfo, encoding, CertUtil
 				.getSignCertPrivateKey());
 	}
 	
@@ -712,7 +713,7 @@ public class SDKUtil {
 	 * @return String
 	 */
 	public static String encryptTrack(String trackData, String encoding) {
-		return SecureUtil.EncryptData(trackData, encoding,
+		return SecureUtil.encryptData(trackData, encoding,
 				CertUtil.getEncryptTrackCertPublicKey());
 	}
 	
@@ -731,7 +732,7 @@ public class SDKUtil {
 	 */
 	public static String encryptTrack(String trackData, String encoding,
 			String modulus, String exponent) {
-		return SecureUtil.EncryptData(trackData, encoding,
+		return SecureUtil.encryptData(trackData, encoding,
 				CertUtil.getEncryptTrackCertPublicKey(modulus, exponent));
 	}
 	/**
@@ -790,10 +791,9 @@ public class SDKUtil {
 	public static Map<String, String> convertResultStringToMap(String result) {
 		Map<String, String> map =null;
 		try {
-			
-			if(StringUtils.isNotBlank(result)){
-				if(result.startsWith("{") && result.endsWith("}")){
-					System.out.println(result.length());
+			if (StringUtils.isNotBlank(result)) {
+				if (result.startsWith("{") && result.endsWith("}")) {
+					LOGGER.info(String.valueOf(result.length()));
 					result = result.substring(1, result.length()-1);
 				}
 				 map = parseQString(result);

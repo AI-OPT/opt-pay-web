@@ -33,10 +33,15 @@ import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ai.runner.center.pay.web.system.util.BaseHttpSSLSocketFactory;
 import com.ai.runner.center.pay.web.system.util.BaseHttpSSLSocketFactory.TrustAnyHostnameVerifier;
 
 public class HttpClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
+    
 	/**
 	 * 目标地址
 	 */
@@ -85,7 +90,7 @@ public class HttpClient {
 			this.connectionTimeout = connectionTimeout;
 			this.readTimeOut = readTimeOut;
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -198,7 +203,7 @@ public class HttpClient {
 		try {
 			httpURLConnection = (HttpURLConnection) url.openConnection();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 			return null;
 		}
 		httpURLConnection.setConnectTimeout(this.connectionTimeout);// 连接超时时间
@@ -239,7 +244,7 @@ public class HttpClient {
 							+ (null == en.getValue() || "".equals(en.getValue()) ? "" : URLEncoder
 									.encode(en.getValue(), coder)) + "&");
 				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 					return "";
 				}
 			}

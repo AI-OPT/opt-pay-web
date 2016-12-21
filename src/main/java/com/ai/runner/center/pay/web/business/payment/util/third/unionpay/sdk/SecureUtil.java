@@ -301,7 +301,7 @@ public class SecureUtil {
 	 *            公钥
 	 * @return 转PIN结果
 	 */
-	public static String EncryptPin(String pin, String card, String encoding,
+	public static String encryptPin(String pin, String card, String encoding,
 			PublicKey key) {
 		/** 生成PIN Block **/
 		byte[] pinBlock = pin2PinBlockWithCardNO(pin, card);
@@ -327,7 +327,7 @@ public class SecureUtil {
 	 *            公钥
 	 * @return
 	 */
-	public static String EncryptData(String dataString, String encoding,
+	public static String encryptData(String dataString, String encoding,
 			PublicKey key) {
 		/** 使用公钥对密码加密 **/
 		byte[] data = null;
@@ -351,7 +351,7 @@ public class SecureUtil {
 	 *            私钥
 	 * @return 解密后的数据
 	 */
-	public static String DecryptedData(String dataString, String encoding,
+	public static String decryptedData(String dataString, String encoding,
 			PrivateKey key) {
 		byte[] data = null;
 		try {
@@ -394,7 +394,7 @@ public class SecureUtil {
 	 *            待转换的字符串
 	 * @return 转换结果
 	 */
-	public byte[] Str2Hex(String str) {
+	public byte[] str2Hex(String str) {
 		char[] ch = str.toCharArray();
 		byte[] b = new byte[ch.length / 2];
 		for (int i = 0; i < ch.length; i++) {
@@ -420,7 +420,7 @@ public class SecureUtil {
 	 *            待转换的byte数组
 	 * @return 转换后的字符串
 	 */
-	public static String Hex2Str(byte[] b) {
+	public static String hex2Str(byte[] b) {
 		StringBuffer d = new StringBuffer(b.length * 2);
 		for (int i = 0; i < b.length; i++) {
 			char hi = Character.forDigit((b[i] >> 4) & 0x0F, 16);
@@ -431,7 +431,7 @@ public class SecureUtil {
 		return d.toString();
 	}
 
-	public static String ByteToHex(byte[] bytes) {
+	public static String byteToHex(byte[] bytes) {
 		StringBuffer sha1StrBuff = new StringBuffer();
 		for (int i = 0; i < bytes.length; i++) {
 			if (Integer.toHexString(0xFF & bytes[i]).length() == 1) {
@@ -453,7 +453,7 @@ public class SecureUtil {
 	 *            转换长度
 	 * @return
 	 */
-	public static String Hex2Str(byte[] b, int len) {
+	public static String hex2Str(byte[] b, int len) {
 		String str = "";
 		char[] ch = new char[len * 2];
 
@@ -882,9 +882,6 @@ public class SecureUtil {
 
 			return tEncryptPIN;
 		} catch (Exception e) {
-			e.printStackTrace(System.out);
-			return tPIN;
-		} catch (Error e) {
 			e.printStackTrace(System.out);
 			return tPIN;
 		}

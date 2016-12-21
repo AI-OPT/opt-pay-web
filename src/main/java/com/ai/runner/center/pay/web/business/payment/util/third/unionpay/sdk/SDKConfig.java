@@ -26,6 +26,8 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 软件开发工具包 配制
@@ -34,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
  * 
  */
 public class SDKConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SDKConfig.class);
 
 	public static final String FILE_NAME = "acp_sdk.properties";
 
@@ -149,21 +152,21 @@ public class SDKConfig {
 					properties.load(bf);
 					loadProperties(properties);
 				} catch (FileNotFoundException e) {
-					e.printStackTrace();
+				    LOGGER.error(e.getMessage(), e);
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				} finally {
 					if (null != in) {
 						try {
 							in.close();
 						} catch (IOException e) {
-							e.printStackTrace();
+							LOGGER.error(e.getMessage(), e);
 						}
 					}
 				}
 			} else {
 				// 由于此时可能还没有完成LOG的加载，因此采用标准输出来打印日志信息
-				System.out.println(rootPath + FILE_NAME + "不存在,加载参数失败");
+			    LOGGER.error(rootPath + FILE_NAME + "不存在,加载参数失败");
 			}
 		} else {
 			loadPropertiesFromSrc();
@@ -195,13 +198,13 @@ public class SDKConfig {
 			}
 			loadProperties(properties);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		} finally {
 			if (null != in) {
 				try {
 					in.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.error(e.getMessage(), e);
 				}
 			}
 		}
