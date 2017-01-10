@@ -208,7 +208,7 @@ public class TradeBaseController extends BaseController {
      * @ApiCode
      */
     protected void modifyTradeState(String tenantId, String merchantOrderId, int status) {
-        this.modifyTradeState(tenantId, merchantOrderId, status, null, null, null, null, null);
+        this.modifyTradeState(tenantId, merchantOrderId, status, null, null, null, null, null, null);
     }
     
     /**
@@ -227,9 +227,9 @@ public class TradeBaseController extends BaseController {
      */
     protected void modifyTradeState(String tenantId, String merchantOrderId, int status,
             String payOrgSerial, String notifyId, String buyerEmail, String returnEmail,
-            String drawEmail) {
+            String drawEmail, String payOrgId) {
         this.modifyTradeState(tenantId, merchantOrderId, status, payOrgSerial, notifyId,
-                buyerEmail, returnEmail, drawEmail, null, null);
+                buyerEmail, returnEmail, drawEmail, null, null, payOrgId);
     }
     
     /**
@@ -250,7 +250,7 @@ public class TradeBaseController extends BaseController {
      */
     protected void modifyTradeState(String tenantId, String merchantOrderId, int status,
             String payOrgSerial, String notifyId, String buyerEmail, String returnEmail,
-            String drawEmail, String sendDetailData, String receiveDetailData) {
+            String drawEmail, String sendDetailData, String receiveDetailData, String payOrgId) {
         TradeModifyReq req = new TradeModifyReq();
         req.setTenantId(tenantId);
         req.setOrderId(merchantOrderId);
@@ -262,6 +262,7 @@ public class TradeBaseController extends BaseController {
         req.setDrawEmail(drawEmail);
         req.setSendDetailData(sendDetailData);
         req.setReceiveDetailData(receiveDetailData);
+        req.setPayOrgId(payOrgId);
         this.payCenterSV.modifyTradeRecord(req);
         LOG.info("成功修改该订单[" + merchantOrderId + "]交易状态");
     }

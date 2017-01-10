@@ -38,6 +38,7 @@ import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager
 import com.ai.runner.center.pay.web.system.configcenter.WeixinConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
+import com.ai.runner.center.pay.web.system.constants.PayConstants.PayOrgCode;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigUtil;
@@ -216,7 +217,7 @@ public class WeixinPayController extends TradeBaseController {
                 if (tradeRecord.getStatus() != null
                         && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
                     this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                            transaction_id, null, null, null, null);
+                            transaction_id, null, null, null, null, PayOrgCode.WEIXIN);
                     /* 5.异步通知业务系统订单支付状态 */
                     PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
                             transaction_id, subject, orderAmount, payStates,
@@ -516,7 +517,7 @@ public class WeixinPayController extends TradeBaseController {
 
         String refund_id = resmap.get("refund_id");
         this.modifyTradeState(tenantId, orderId, status, refund_id, null, null, null, null, null,
-                responseStr);
+                responseStr, PayOrgCode.WEIXIN);
         LOG.debug("修改退款单状态成功");
         return refundRes;
     }

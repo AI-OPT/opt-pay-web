@@ -34,6 +34,7 @@ import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager
 import com.ai.runner.center.pay.web.system.configcenter.YlPayConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
+import com.ai.runner.center.pay.web.system.constants.PayConstants.PayOrgCode;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigUtil;
@@ -272,15 +273,13 @@ public class YlPayController extends TradeBaseController {
             String subject = tradeRecord.getSubject();
             String orderAmount = String.format("%.2f",
                     AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); // 付款金额
-            if (tradeRecord.getStatus() != null
-                    && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
-                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                        trade_no, null, null, null, null);
+            // 更新流水记录
+            this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                    trade_no, null, null, null, null, PayOrgCode.YL);
 
-                /* 5.异步通知业务系统订单支付状态 */
-                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId, trade_no,
-                        subject, orderAmount, payStates, PayConstants.PayOrgCode.YL);
-            }
+            /* 5.异步通知业务系统订单支付状态 */
+            PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId, trade_no,
+                    subject, orderAmount, payStates, PayConstants.PayOrgCode.YL);
             // 返回给银联服务器http 200 状态码
             printWriter.print("ok");
             printWriter.flush();
@@ -579,7 +578,7 @@ public class YlPayController extends TradeBaseController {
                 status = PayConstants.Status.REFUND_FINISH;
                 dealState = PayConstants.ReturnCode.SUCCESS;
                 this.modifyTradeState(tenantId, tradeRecord.getOrderId(), status, refund_trade_no,
-                        null, null, null, null, null, JSON.toJSONString(params));
+                        null, null, null, null, null, JSON.toJSONString(params), PayOrgCode.YL);
 
                 /* 4.异步通知外部系统退款结果 */
                 String notifyUrl = tradeRecord.getNotifyUrl();
@@ -778,7 +777,7 @@ public class YlPayController extends TradeBaseController {
                 status = PayConstants.Status.TAKE_SUCCESS;
                 dealState = PayConstants.ReturnCode.SUCCESS;
                 this.modifyTradeState(tenantId, tradeRecord.getOrderId(), status, out_trade_no,
-                        null, null, null, null, null, JSON.toJSONString(params));
+                        null, null, null, null, null, JSON.toJSONString(params), PayOrgCode.YL);
 
                 /* 4.异步通知外部系统退款结果 */
                 String notifyUrl = tradeRecord.getNotifyUrl();

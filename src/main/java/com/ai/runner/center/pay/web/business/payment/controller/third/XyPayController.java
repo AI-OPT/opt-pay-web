@@ -30,6 +30,7 @@ import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager
 import com.ai.runner.center.pay.web.system.configcenter.XyPayConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
+import com.ai.runner.center.pay.web.system.constants.PayConstants.PayOrgCode;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigUtil;
@@ -151,7 +152,7 @@ public class XyPayController extends TradeBaseController {
                 if (tradeRecord.getStatus() != null
                         && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
                     this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                            null, null, null, null, null);
+                            null, null, null, null, null, PayOrgCode.XY);
                     /* 4.异步通知业务系统订单支付状态 */
                     PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
                             null, subject, orderAmount, payStates,
@@ -223,7 +224,7 @@ public class XyPayController extends TradeBaseController {
         }
 
         String sno = resJson.getString("sno");
-        this.modifyTradeState(tenantId, orderId, status, sno, null, null, null, null, null, resp);
+        this.modifyTradeState(tenantId, orderId, status, sno, null, null, null, null, null, resp, PayOrgCode.XY);
         return withdrawRes;
     }    
     

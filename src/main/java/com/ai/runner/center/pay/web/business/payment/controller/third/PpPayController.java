@@ -32,6 +32,7 @@ import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager
 import com.ai.runner.center.pay.web.system.configcenter.PpPayConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
+import com.ai.runner.center.pay.web.system.constants.PayConstants.PayOrgCode;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -184,19 +185,15 @@ public class PpPayController extends TradeBaseController {
             }
             String notifyUrl = tradeRecord.getNotifyUrl();
             String orderAmount = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额 
-            String notifyIdDB = tradeRecord.getNotifyId();
             item_name = tradeRecord.getSubject();
             
-            /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
-            if (!notify_id.equals(notifyIdDB) && tradeRecord.getStatus() != null
-                    && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
-                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                        txn_id, notify_id, buyer_email, null, seller_email);
-                
-                /* 5.异步通知业务系统订单支付状态 */
-                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                        txn_id, item_name, orderAmount, payStates, PayConstants.PayOrgCode.PP);
-            }
+            /* 4.更新支付流水信息 */
+            this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                    txn_id, notify_id, buyer_email, null, seller_email, PayOrgCode.PP);
+            
+            /* 5.异步通知业务系统订单支付状态 */
+            PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
+                    txn_id, item_name, orderAmount, payStates, PayConstants.PayOrgCode.PP);
             
         } catch(IOException ex) {
             LOGGER.error("paypalWEB后台通知失败", ex);

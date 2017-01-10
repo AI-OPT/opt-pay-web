@@ -41,6 +41,7 @@ import com.ai.runner.center.pay.web.system.configcenter.AbstractPayConfigManager
 import com.ai.runner.center.pay.web.system.configcenter.AliPayConfigManager;
 import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
+import com.ai.runner.center.pay.web.system.constants.PayConstants.PayOrgCode;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigFromFileUtil;
 import com.ai.runner.center.pay.web.system.util.ConfigUtil;
@@ -259,19 +260,15 @@ public class AlipayController extends TradeBaseController {
             }
             String notifyUrl = tradeRecord.getNotifyUrl();
             String orderAmount = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额 
-            String notifyIdDB = tradeRecord.getNotifyId();
             subject = tradeRecord.getSubject();
             
-            /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
-            if (!notify_id.equals(notifyIdDB) && tradeRecord.getStatus() != null
-                    && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
-                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                        trade_no, notify_id, buyer_email, null, seller_email);
-                
-                /* 5.异步通知业务系统订单支付状态 */
-                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
-            }
+            /* 4.更新支付流水信息 */
+            this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                    trade_no, notify_id, buyer_email, null, seller_email, PayOrgCode.ZFB);
+            
+            /* 5.异步通知业务系统订单支付状态 */
+            PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
+                    trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
             
             response.getWriter().write("success"); // 支付宝接收不到“success” 就会在24小时内重复调用多次
         } catch(IOException ex) {
@@ -619,19 +616,16 @@ public class AlipayController extends TradeBaseController {
             }
             String notifyUrl = tradeRecord.getNotifyUrl();
             String orderAmount = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额 
-            String notifyIdDB = tradeRecord.getNotifyId();
+//            String notifyIdDB = tradeRecord.getNotifyId();
             subject = tradeRecord.getSubject();
             
-            /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
-            if (!notify_id.equals(notifyIdDB) && tradeRecord.getStatus() != null
-                    && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
-                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                        trade_no, notify_id, buyer_email, null, seller_email);
-                
-                /* 5.异步通知业务系统订单支付状态 */
-                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
-            }
+            /* 4.更新支付流水信息 */
+            this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                    trade_no, notify_id, buyer_email, null, seller_email, PayOrgCode.ZFB);
+            
+            /* 5.异步通知业务系统订单支付状态 */
+            PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
+                    trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
             
             response.getWriter().write("success"); // 支付宝接收不到“success” 就会在24小时内重复调用多次
         } catch(IOException ex) {
@@ -687,19 +681,15 @@ public class AlipayController extends TradeBaseController {
             }
             String notifyUrl = tradeRecord.getNotifyUrl();
             String orderAmount = String.format("%.2f", AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); //付款金额 
-            String notifyIdDB = tradeRecord.getNotifyId();
             subject = tradeRecord.getSubject();
             
-            /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
-            if (!notify_id.equals(notifyIdDB) && tradeRecord.getStatus() != null
-                    && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
-                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                        trade_no, notify_id, buyer_email, null, seller_email);
-                
-                /* 5.异步通知业务系统订单支付状态 */
-                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                        trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
-            }
+            /* 4.更新支付流水信息 */
+            this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                    trade_no, notify_id, buyer_email, null, seller_email, PayOrgCode.ZFB);
+            
+            /* 5.异步通知业务系统订单支付状态 */
+            PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
+                    trade_no, subject, orderAmount, payStates, PayConstants.PayOrgCode.ZFB);
             
             response.getWriter().write("success"); // 支付宝接收不到“success” 就会在24小时内重复调用多次
         } catch(IOException ex) {
@@ -992,7 +982,7 @@ public class AlipayController extends TradeBaseController {
             TradeRecord tradeRecord = tradeRecords.get(0);
             if (!notify_id.equals(tradeRecord.getNotifyId())) {
                 this.modifyTradeState(tenantId, tradeRecord.getOrderId(), status, payOrgSerial,
-                        notify_id, null, null, null, null, result_details);
+                        notify_id, null, null, null, null, result_details, PayOrgCode.ZFB);
                 
                 /* 4.异步通知外部系统退款结果 */
                 String notifyUrl = tradeRecord.getNotifyUrl();
@@ -1085,7 +1075,7 @@ public class AlipayController extends TradeBaseController {
                 notifyUrl = tradeRecord.getNotifyUrl();
                 if (!notify_id.equals(tradeRecord.getNotifyId())) {
                     this.modifyTradeState(tenantId, tradeRecord.getOrderId(), status, null,
-                            notify_id, null, null, null, null, result_details);
+                            notify_id, null, null, null, null, result_details, PayOrgCode.ZFB);
                 }
             }
 
