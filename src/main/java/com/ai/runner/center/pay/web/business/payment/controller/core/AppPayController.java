@@ -25,7 +25,7 @@ import com.ai.runner.center.pay.web.system.util.ConfigUtil;
 import com.alibaba.fastjson.JSON;
 
 /**
- * 支付平台app支付统一入口控制类
+ * 支付平台中app支付统一入口控制类
  * 
  * Date: 2015年11月6日 <br>
  * Copyright (c) 2015 asiainfo.com <br>
@@ -71,9 +71,11 @@ public class AppPayController extends TradeBaseController {
             LOG.error("未识别的合作方身份！租户ID： " + tenantId);
             throw new BusinessException(ExceptCodeConstants.ILLEGAL_PARTNER, "未识别的合作方身份！");
         }
+        //沉淀支付信息
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
                 partnerId, paymentReqParam.getCurrencyUnit(), "");
+
         this.doAppPay(request, response, tenantId, orderId, payOrgCode, requestSource);
     }
 

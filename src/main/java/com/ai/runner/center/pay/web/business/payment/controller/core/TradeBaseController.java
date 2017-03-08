@@ -21,7 +21,9 @@ import com.ai.runner.center.pay.web.system.constants.ExceptCodeConstants;
 import com.ai.runner.center.pay.web.system.constants.PayConstants;
 import com.ai.runner.center.pay.web.system.util.AmountUtil;
 
-
+/**
+ * 支付交易基础controller
+ */
 public class TradeBaseController extends BaseController {
     
     private static final Logger LOG = Logger.getLogger(TradeBaseController.class);

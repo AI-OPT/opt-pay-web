@@ -60,14 +60,19 @@ public class PayController extends TradeBaseController {
         String requestSource = paymentReqParam.getRequestSource();
         String returnUrl = paymentReqParam.getReturnUrl();
         String partnerId = "";
+        //判断是否为测试
         String serverType =  ConfigUtil.getProperty(PayConstants.SERVER_TYPE);
+        //若是测试，则将金额改成0.01
         if ("ISTEST".equals(serverType)) {
             orderAmount = "0.01";
         }
+        //添加交易记录
         this.createPaymentInfo(tenantId, orderId, orderAmount, subject, requestSource,
                 paymentReqParam.getNotifyUrl(), paymentReqParam.getMerchantUrl(), returnUrl,
                 partnerId, paymentReqParam.getCurrencyUnit(), paymentReqParam.getPayOrgCode());
-    	String payOrgCode = paymentReqParam.getPayOrgCode();
+    	//支付机构编码
+        String payOrgCode = paymentReqParam.getPayOrgCode();
+        //查询此订单的交易信息
     	TradeRecord tradeRecord = this.queryTradeRecord(tenantId, orderId);
         if (tradeRecord == null) {
             LOG.error("发起支付时查询不到此订单支付请求数据： 租户标识： " + tenantId + " ，订单号： " + orderId);
@@ -79,7 +84,11 @@ public class PayController extends TradeBaseController {
         /* 4.跳转到对应的支付方式支付前准备工作 */
         return this.prepareToPay(tenantId, orderId, payOrgCode, tradeRecord.getRequestSource());
     }
-    
+
+    /**
+     * 支付请求参数校验
+     * @param paymentReqParam
+     */
     private void checkGotoPayByOrgParam(PaymentReqParam paymentReqParam) {
         final String errMsg = "支付传入参数有误：";
         String tenantId = paymentReqParam.getTenantId();
@@ -118,7 +127,9 @@ public class PayController extends TradeBaseController {
         if(StringUtil.isBlank(paymentReqParam.getInfoMd5())) {
             throw new BusinessException(ExceptCodeConstants.PARAM_IS_NULL, errMsg + "加密信息不能为空");
         }
-        
+        /*
+        * 进行信息完整性进行MD5验证
+        * */
         //orderId;orderAmount;notifyUrl;tenantId
         //(订单号，订单金额，服务后台通知路径，租户ID四个关键字段，以英文输入分号分隔;注意最后没有分号)
         String infoStr = paymentReqParam.getOrderId() + VerifyUtil.SEPARATOR
@@ -226,7 +237,7 @@ public class PayController extends TradeBaseController {
             LOG.error("支付遇到问题,跳转不到对应的支付网页进行支付操作！");
             throw new BusinessException(ExceptCodeConstants.WRONG_ACTION, "支付遇到问题,跳转不到对应的支付网页进行支付操作！");
         }
-        
+        //获取请求中对应加密key
         String key = AbstractPayConfigManager.getRequestKey();
         String infoStr = orderId + VerifyUtil.SEPARATOR + tenantId;
         String infoMd5 = VerifyUtil.encodeParam(infoStr, key);

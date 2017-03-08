@@ -27,6 +27,7 @@ public class PaymentListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
         try {
+            //加载sdk配置信息。
             SDKConfig.getConfig().loadPropertiesFromSrc();
             LOG.info("Application initialize successfully!");
         } catch(Exception ex) {

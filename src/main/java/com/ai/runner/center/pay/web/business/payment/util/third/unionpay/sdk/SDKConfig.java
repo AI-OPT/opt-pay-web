@@ -146,8 +146,7 @@ public class SDKConfig {
 			if (file.exists()) {
 				try {
 					in = new FileInputStream(file);
-					BufferedReader bf = new BufferedReader(
-							new InputStreamReader(in, "utf-8"));
+					BufferedReader bf = new BufferedReader(new InputStreamReader(in, "utf-8"));
 					properties = new Properties();
 					properties.load(bf);
 					loadProperties(properties);
@@ -181,8 +180,7 @@ public class SDKConfig {
 		InputStream in = null;
 		try {
 			// Properties pro = null;
-			in = SDKConfig.class.getClassLoader()
-					.getResourceAsStream(FILE_NAME);
+			in = SDKConfig.class.getClassLoader().getResourceAsStream(FILE_NAME);
 			if (null != in) {
 				BufferedReader bf = new BufferedReader(new InputStreamReader(
 						in, "utf-8"));
@@ -218,6 +216,7 @@ public class SDKConfig {
 	public void loadProperties(Properties pro) {
 		String value = null;
 		value = pro.getProperty(SDK_SINGLEMODE);
+		//若配置为空或TRUE，则使用单证书模式
 		if (SDKUtil.isEmpty(value) || SDKConstants.TRUE_STRING.equals(value)) {
 			this.singleMode = SDKConstants.TRUE_STRING;
 			LogUtil.writeLog("SingleCertMode:[" + this.singleMode + "]");
