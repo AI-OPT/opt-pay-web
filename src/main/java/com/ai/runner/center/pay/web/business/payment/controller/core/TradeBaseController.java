@@ -52,7 +52,29 @@ public class TradeBaseController extends BaseController {
         param.setMerchantOrderId(merchantOrderId);
         return tradeQuerySV.querySingleTradeRecordByMerchantOrderId(param);
     }
-    
+
+    /**
+     * 后台通知修改订单交易状态
+     * @param tenantId
+     * @param merchantOrderId
+     * @param status
+     * @param payOrgSerial
+     * @author lxk
+     * @ApiDocMethod
+     * @ApiCode
+     */
+    protected void createExceptionTrade(String tenantId, String merchantOrderId, int status,
+                                    String payOrgSerial,  String payOrgId) {
+        TradeModifyReq req = new TradeModifyReq();
+        req.setTenantId(tenantId);
+        req.setOrderId(merchantOrderId);
+        req.setStatus(status);
+        req.setPayOrgSerial(payOrgSerial);
+        req.setPayOrgId(payOrgId);
+        this.payCenterSV.createExceptionRecord(req);
+        LOG.info("成功增加异常订单[" + merchantOrderId + "]交易状态");
+    }
+
     
     /**
      * 沉淀初始支付信息

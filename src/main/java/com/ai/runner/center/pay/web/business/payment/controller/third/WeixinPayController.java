@@ -212,17 +212,26 @@ public class WeixinPayController extends TradeBaseController {
                 String orderAmount = String.format("%.2f",
                         AmountUtil.changeLiToYuan(tradeRecord.getPayAmount())); // 付款金额
                 String subject = tradeRecord.getSubject();
-                /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则什么都不做 */
+                /* 4.判断是否已经回调过，如果不是同一个回调更新支付流水信息，否则记录为异常单 */
                 LOG.info("微信后台通知更新订单状态befor：[" + out_trade_no + ";" + tradeRecord.getStatus() + "]");
+                this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
+                        transaction_id, null, null, null, null, PayOrgCode.WEIXIN);
+                /*
+                查询是否是异常支付,查询支付中心流水表，按订单号查询支付状态是否为申请支付状态，如果是，将此订单支付状态修改为支付完成，
+                记录到支付中心流水表；如果不是申请支付状态，对比支付中心流水表中现有记录的第三方平台交易流水号和第三方平台返回的第三方平台交易流水号，
+                如果两者都相同则不进行任何操作；如果两者不同，则记录到异常支付单表中
+                */
                 if (tradeRecord.getStatus() != null
-                        && PayConstants.Status.APPLY == tradeRecord.getStatus()) {
-                    this.modifyTradeState(tenantId, orderId, PayConstants.Status.PAYED_SUCCESS,
-                            transaction_id, null, null, null, null, PayOrgCode.WEIXIN);
-                    /* 5.异步通知业务系统订单支付状态 */
-                    PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
-                            transaction_id, subject, orderAmount, payStates,
-                            PayConstants.PayOrgCode.WEIXIN);
+                        && PayConstants.Status.APPLY != tradeRecord.getStatus()){
+                    if (!tradeRecord.getTradeOrderId().equals(transaction_id)){
+                        this.createExceptionTrade(tenantId,orderId,PayConstants.Status.PAYED_SUCCESS,transaction_id,PayOrgCode.WEIXIN);
+                    }
+                    return;
                 }
+                /* 5.异步通知业务系统订单支付状态 */
+                PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
+                        transaction_id, subject, orderAmount, payStates,
+                        PayConstants.PayOrgCode.WEIXIN);
 
                 printWriter.write(PayConstants.WeixinReturnCode.SUCCESS);//
                 printWriter.flush();
