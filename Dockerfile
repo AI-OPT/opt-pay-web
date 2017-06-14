@@ -16,4 +16,4 @@ RUN chmod 755 /*.sh
 COPY ./assets /assets
 
 # Define default command.
-CMD ["/start-web.sh"]
+#CMD ["/start-web.sh"]
