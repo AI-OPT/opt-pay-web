@@ -195,13 +195,13 @@ public class PpPayController extends TradeBaseController {
             记录到支付中心流水表；如果不是申请支付状态，对比支付中心流水表中现有记录的第三方平台交易流水号和第三方平台返回的第三方平台交易流水号，
             如果两者都相同则不进行任何操作；如果两者不同，则记录到异常支付单表中
             */
-            if (tradeRecord.getStatus() != null
+          /*  if (tradeRecord.getStatus() != null
                     && PayConstants.Status.APPLY != tradeRecord.getStatus()){
                 if (!tradeRecord.getTradeOrderId().equals(txn_id)){
                     this.createExceptionTrade(tenantId,orderId,PayConstants.Status.PAYED_SUCCESS,txn_id,PayOrgCode.PP);
                 }
                 return;
-            }
+            }*/
             /* 5.异步通知业务系统订单支付状态 */
             PaymentNotifyUtil.notifyClientAsync(notifyUrl, tenantId, orderId,
                     txn_id, item_name, orderAmount, payStates, PayConstants.PayOrgCode.PP);
