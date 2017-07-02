@@ -283,6 +283,7 @@ public class YlPayController extends TradeBaseController {
             */
             if (tradeRecord.getStatus() != null
                     && PayConstants.Status.APPLY != tradeRecord.getStatus()){
+                LOG.info("如果两者都相同则不进行任何操作；如果两者不同，则记录到异常支付单表中。异常支付订单状态===tradeRecordStatus"+tradeRecord.getStatus()+"PayConstants.Status.APPLY="+PayConstants.Status.APPLY);
                 if (!tradeRecord.getTradeOrderId().equals(trade_no)){
                     this.createExceptionTrade(tenantId,orderId,PayConstants.Status.PAYED_SUCCESS,trade_no,PayOrgCode.YL);
                 }
