@@ -2,6 +2,7 @@ package com.ai.runner.center.pay.web.business.payment.controller.core;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -166,6 +167,7 @@ public class TradeBaseController extends BaseController {
         req.setRequestSource(requestSource);
         req.setPayRequestType(PayConstants.PayRequestType.PAY);
         req.setCurrencyUnit(currencyUnit);
+        LOG.info("记录支付日志参数:"+ JSON.toJSONString(req));
         return payCenterSV.createTradeRecord(req);
     }
     
